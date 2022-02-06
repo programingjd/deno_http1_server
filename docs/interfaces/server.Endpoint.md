@@ -1,5 +1,3 @@
-[undefined](../README.md) / [server](../modules/server.md) / Endpoint
-
 # Interface: Endpoint<T\>
 
 [server](../modules/server.md).Endpoint
@@ -9,13 +7,6 @@
 | Name |
 | :------ |
 | `T` |
-
-## Table of contents
-
-### Methods
-
-- [accept](server.Endpoint.md#accept)
-- [handle](server.Endpoint.md#handle)
 
 ## Methods
 

@@ -1,4 +1,6 @@
 {
+  "name": "deno_http1_server",
+  "version": "0.1.0",
   "scripts": {
     "start": "typedoc --out docs mod.d.ts"
   },

@@ -1,5 +1,3 @@
-[undefined](../README.md) / [server](../modules/server.md) / MimeTypes
-
 # Interface: MimeTypes
 
 [server](../modules/server.md).MimeTypes

@@ -1,5 +1,3 @@
-[undefined](../README.md) / [server](../modules/server.md) / DomainDirectories
-
 # Interface: DomainDirectories
 
 [server](../modules/server.md).DomainDirectories

@@ -1,10 +1,6 @@
-[undefined](../README.md) / server
-
 # Namespace: server
 
-## Table of contents
-
-### Interfaces
+## Interfaces
 
 - [DirectoryConfig](../interfaces/server.DirectoryConfig.md)
 - [DomainDirectories](../interfaces/server.DomainDirectories.md)
@@ -13,18 +9,6 @@
 - [MimeTypes](../interfaces/server.MimeTypes.md)
 - [State](../interfaces/server.State.md)
 - [StaticConfig](../interfaces/server.StaticConfig.md)
-
-### Type aliases
-
-- [DirectoryName](server.md#directoryname)
-- [DomainName](server.md#domainname)
-- [MimeType](server.md#mimetype)
-- [ServeOptions](server.md#serveoptions)
-- [ServerOptions](server.md#serveroptions)
-
-### Functions
-
-- [serve](server.md#serve)
 
 ## Type aliases
 

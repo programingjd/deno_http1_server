@@ -14,6 +14,8 @@
     "readme": "none",
     "disableSources": true,
     "exclude": "node_modules/**/*.js",
-    "plugin": "typedoc-plugin-markdown"
+    "plugin": "typedoc-plugin-markdown",
+    "hideBreadcrumbs": true,
+    "hideInPageTOC": true
   }
 }
