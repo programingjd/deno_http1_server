@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "lib": [ "ES7", "DOM" ],
+    "typeRoots": [
+      "deno"
+    ]
+  },
+  "exclude": ["*.js"],
+  "typedocOptions": {
+    "entryPoints": ["mod.js"],
+    "out": "docs",
+    "excludePrivate": true,
+    "excludeInternal": true,
+    "readme": "none",
+    "disableSources": true,
+    "exclude": "node_modules/**/*.js",
+    "plugin": "typedoc-plugin-markdown"
+  }
+}

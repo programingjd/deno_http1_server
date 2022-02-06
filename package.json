@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "start": "typedoc --out docs mod.d.ts"
+  },
+  "devDependencies": {
+    "typedoc": "latest",
+    "typedoc-plugin-markdown": "latest"
+  }
+}
