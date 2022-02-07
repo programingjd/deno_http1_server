@@ -8,7 +8,7 @@
     "^[a-z]+/[a-z0-9.+-]+$": {
       "oneOf": [
         {
-          "type": "string"
+          "type": "null"
         },
         {
           "$ref": "https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mimetype_config.schema.json"
