@@ -30,10 +30,6 @@ declare module server {
     accept: (request: Request, url: URL) => Promise<T>
     handle: (accepted: T) => Promise<Response>
   }
-  export interface MimeTypeConfig {
-    extensions: string[],
-    headers: HeadersInit
-  }
   export type ServeOptions = Deno.ListenOptions & { transport?: 'tcp' }
   export type ServerOptions = ServeOptions & { signal?: AbortSignal }
   export function serve(options: ServerOptions):Promise<void>

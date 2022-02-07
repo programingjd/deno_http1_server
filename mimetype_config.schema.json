@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/programingjd/deno_http1_server/blob/main/mimetype_config.schema.json",
+  "title": "MimeTypeConfig",
+  "description": "File type config for files of a specific mime type",
+  "type": "object",
+  "properties": {
+    "prefixes": {
+      "description": "A list of file prefixes that identifies files of this mime type.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "headers": {
+      "description": "Custom headers",
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9-_]$": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "compress": {
+      "description": "Whether to enable automatic brotli compression or not.",
+      "type": "boolean"
+    },
+    "cache_threshold": {
+      "description": "Size (uncompressed) threshold: larger files will be read directly from disk.",
+      "oneOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9]+[.]?[0.9]*[km]?b$"
+        }
+      ]
+    }
+  },
+  "required": [ "prefixes", "compress", "cache_threshold" ]
+}

@@ -35,6 +35,7 @@ The server will scan the current directory looking for subdirectories (direct ch
 
 - `headers` are headers that will be applied to all endpoints and mime types.<br>
 You can unset a header by setting its value to `null`.<br>
+The list of default headers is [here](headers.json).<br> 
 _This field is optional._
 
 - `endpoints` is an array of modules implementing custom endpoints.<br>
@@ -60,9 +61,9 @@ The default export should be an `Endpoint<*>[]` or an `async () => Endpoint<*>[]
 
 When multiple domains are used, no redirection is done by default. Redirection to a specific domain should be done in the endpoints if desired.
 
-## <a href="static_files">Static files</a>
+## <a id="static_files">Static files</a>
 
-Static files are pre-compressed when applicable and preloaded into memory to improve speed and avoid disk io bottlenecks.
+Static files are pre-compressed (with `brotli --best`) when applicable and preloaded into memory to improve speed and avoid disk io bottlenecks.
 
 ### <a id="indexes">Indexes</a>
 `index.html` is used for the directory itself. If this file doesn't exist, then a `404` is returned.
@@ -145,4 +146,4 @@ Example configuration:
 }
 ```
 
-The list of default types is [here](./mimes.json).
+The list of default types is [here](mimes.json).

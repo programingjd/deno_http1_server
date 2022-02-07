@@ -1,5 +1,382 @@
 {
   "text/html": {
-
+    "prefixes": [
+      ".html", ".htm"
+    ],
+    "headers": {
+      "cache-control": "public,no-cache"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "text/css": {
+    "prefixes": [
+      ".css"
+    ],
+    "headers": {
+      "cache-control": "public,no-cache"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "application/javascript": {
+    "prefixes": [
+      ".js", ".mjs", ".js.map", ".mjs.map"
+    ],
+    "headers": {
+      "cache-control": "public,no-cache"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "text/plain": {
+    "prefixes": [
+      ".txt", ".wat", ".glsl"
+    ],
+    "headers": {
+      "cache-control": "public,no-cache"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "application/manifest+json": {
+    "prefixes": [
+      "manifest.json", ".manifest"
+    ],
+    "headers": {
+      "cache-control": "public,no-cache"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "font/woff2": {
+    "prefixes": [
+      ".woff2"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": false,
+    "cache_threshold": null
+  },
+  "image/jpeg": {
+    "prefixes": [
+      ".jpg", ".jpeg"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": false,
+    "cache_threshold": null
+  },
+  "image/png": {
+    "prefixes": [
+      ".png"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": false,
+    "cache_threshold": null
+  },
+  "image/webp": {
+    "prefixes": [
+      ".webp"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": false,
+    "cache_threshold": null
+  },
+  "image/svg+xml": {
+    "prefixes": [
+      ".svg"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "image/x-icon": {
+    "prefixes": [
+      ".ico"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": false,
+    "cache_threshold": null
+  },
+  "application/schema+json": {
+    "prefixes": [
+      ".schema.json"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=86400,must-revalidate"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "application/json": {
+    "prefixes": [
+      ".json"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=3600,must-revalidate"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "application/ld+json": {
+    "prefixes": [
+      ".jsonld"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=3600,must-revalidate"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "application/geo+json": {
+    "prefixes": [
+      ".geojson"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=86400,must-revalidate"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "application/gpx+xml": {
+    "prefixes": [
+      ".gpx"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=86400,must-revalidate"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "application/vnd.google-earth.kml+xml": {
+    "prefixes": [
+      ".kml"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=86400,must-revalidate"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "application/wasm": {
+    "prefixes": [
+      ".wasm"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "model/gltf+json": {
+    "prefixes": [
+      ".gltf"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "model/gltf-binary": {
+    "prefixes": [
+      ".glb"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "text/csv": {
+    "prefixes": [
+      ".csv"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=86400,must-revalidate"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "text/markdown": {
+    "prefixes": [
+      ".csv"
+    ],
+    "headers": {
+      "cache-control": "public,no-cache"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "text/asciidoc": {
+    "prefixes": [
+      ".adoc"
+    ],
+    "headers": {
+      "cache-control": "public,no-cache"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "application/xml": {
+    "prefixes": [
+      ".xml", ".xsd"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=3600,must-revalidate"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "application/xml-dtd": {
+    "prefixes": [
+      ".dtd"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=3600,must-revalidate"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "application/atom+xml": {
+    "prefixes": [
+      ".atom"
+    ],
+    "headers": {
+      "cache-control": "public,no-cache"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "application/pgp-signature": {
+    "prefixes": [
+      ".sig"
+    ],
+    "headers": {
+      "cache-control": "no-store"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "application/x-protobuf": {
+    "prefixes": [
+      ".pbf"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=3600,must-revalidate"
+    },
+    "compress": false,
+    "cache_threshold": "2mb"
+  },
+  "application/octet-stream": {
+    "prefixes": [
+      ".bin"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=3600,must-revalidate"
+    },
+    "compress": true,
+    "cache_threshold": "2mb"
+  },
+  "application/zip": {
+    "prefixes": [
+      ".zip"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=3600,must-revalidate"
+    },
+    "compress": false,
+    "cache_threshold": "2mb"
+  },
+  "application/epub+zip": {
+    "prefixes": [
+      ".xml", ".xsd"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=3600,must-revalidate"
+    },
+    "compress": false,
+    "cache_threshold": "2mb"
+  },
+  "application/pdf": {
+    "prefixes": [
+      ".pdf"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=3600,must-revalidate"
+    },
+    "compress": true,
+    "cache_threshold": null
+  },
+  "audio/mp3": {
+    "prefixes": [
+      ".mp3"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": false,
+    "cache_threshold": "2mb"
+  },
+  "audio/aac": {
+    "prefixes": [
+      ".aac"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": false,
+    "cache_threshold": "2mb"
+  },
+  "audio/x-wav": {
+    "prefixes": [
+      ".wav"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": true,
+    "cache_threshold": "2mb"
+  },
+  "video/mp4": {
+    "prefixes": [
+      ".mp4"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": false,
+    "cache_threshold": "2mb"
+  },
+  "audio/webm": {
+    "prefixes": [
+      ".webm"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": false,
+    "cache_threshold": "2mb"
+  },
+  "image/tiff": {
+    "prefixes": [
+      ".tif", ".tiff", ".geotif", ".geotiff"
+    ],
+    "headers": {
+      "cache-control": "public,immutable"
+    },
+    "compress": false,
+    "cache_threshold": "2mb"
   }
 }
