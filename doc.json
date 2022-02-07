@@ -1,0 +1,820 @@
+[
+  {
+    "kind": "namespace",
+    "name": "server",
+    "location": {
+      "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "declare",
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "typeAlias",
+          "name": "MimeType",
+          "location": {
+            "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+            "line": 2,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "typeAliasDef": {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "keyword": "string"
+            },
+            "typeParams": []
+          }
+        },
+        {
+          "kind": "interface",
+          "name": "MimeTypeConfig",
+          "location": {
+            "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+            "line": 3,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "interfaceDef": {
+            "extends": [],
+            "methods": [],
+            "properties": [
+              {
+                "name": "prefixes",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 4,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "",
+                  "kind": "array",
+                  "array": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                },
+                "typeParams": []
+              },
+              {
+                "name": "headers",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 5,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "HeadersInit",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "HeadersInit"
+                  }
+                },
+                "typeParams": []
+              },
+              {
+                "name": "compress",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 6,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "boolean",
+                  "kind": "keyword",
+                  "keyword": "boolean"
+                },
+                "typeParams": []
+              },
+              {
+                "name": "cache_threshold",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 7,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": true,
+                "tsType": {
+                  "repr": "",
+                  "kind": "union",
+                  "union": [
+                    {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    },
+                    {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number"
+                    }
+                  ]
+                },
+                "typeParams": []
+              }
+            ],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
+        },
+        {
+          "kind": "interface",
+          "name": "MimeTypes",
+          "location": {
+            "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+            "line": 9,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "interfaceDef": {
+            "extends": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [
+              {
+                "readonly": false,
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "key",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "MimeType",
+                      "kind": "typeRef",
+                      "typeRef": {
+                        "typeParams": null,
+                        "typeName": "MimeType"
+                      }
+                    }
+                  }
+                ],
+                "tsType": {
+                  "repr": "MimeTypeConfig",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "MimeTypeConfig"
+                  }
+                }
+              }
+            ],
+            "typeParams": []
+          }
+        },
+        {
+          "kind": "typeAlias",
+          "name": "DomainName",
+          "location": {
+            "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+            "line": 12,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "typeAliasDef": {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "keyword": "string"
+            },
+            "typeParams": []
+          }
+        },
+        {
+          "kind": "interface",
+          "name": "StaticConfig",
+          "location": {
+            "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+            "line": 13,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "interfaceDef": {
+            "extends": [],
+            "methods": [],
+            "properties": [
+              {
+                "name": "domain",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 14,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "DomainName",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "DomainName"
+                  }
+                },
+                "typeParams": []
+              },
+              {
+                "name": "path",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 15,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": true,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string"
+                },
+                "typeParams": []
+              },
+              {
+                "name": "excludes",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 16,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": true,
+                "tsType": {
+                  "repr": "",
+                  "kind": "array",
+                  "array": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                },
+                "typeParams": []
+              },
+              {
+                "name": "mime_types",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 17,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "MimeTypeConfig",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "MimeTypeConfig"
+                  }
+                },
+                "typeParams": []
+              }
+            ],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
+        },
+        {
+          "kind": "interface",
+          "name": "DirectoryConfig",
+          "location": {
+            "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+            "line": 19,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "interfaceDef": {
+            "extends": [],
+            "methods": [],
+            "properties": [
+              {
+                "name": "domains",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 20,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "",
+                  "kind": "array",
+                  "array": {
+                    "repr": "DomainName",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "DomainName"
+                    }
+                  }
+                },
+                "typeParams": []
+              },
+              {
+                "name": "headers",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 21,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "HeadersInit",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "HeadersInit"
+                  }
+                },
+                "typeParams": []
+              },
+              {
+                "name": "endpoints",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 22,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": true,
+                "tsType": {
+                  "repr": "",
+                  "kind": "array",
+                  "array": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                },
+                "typeParams": []
+              },
+              {
+                "name": "static",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 23,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": true,
+                "tsType": {
+                  "repr": "StaticConfig",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "StaticConfig"
+                  }
+                },
+                "typeParams": []
+              }
+            ],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
+        },
+        {
+          "kind": "typeAlias",
+          "name": "DirectoryName",
+          "location": {
+            "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+            "line": 25,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "typeAliasDef": {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "keyword": "string"
+            },
+            "typeParams": []
+          }
+        },
+        {
+          "kind": "interface",
+          "name": "DomainDirectories",
+          "location": {
+            "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+            "line": 26,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "interfaceDef": {
+            "extends": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [
+              {
+                "readonly": false,
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "key",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "DirectoryName",
+                      "kind": "typeRef",
+                      "typeRef": {
+                        "typeParams": null,
+                        "typeName": "DirectoryName"
+                      }
+                    }
+                  }
+                ],
+                "tsType": {
+                  "repr": "",
+                  "kind": "array",
+                  "array": {
+                    "repr": "DomainName",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "DomainName"
+                    }
+                  }
+                }
+              }
+            ],
+            "typeParams": []
+          }
+        },
+        {
+          "kind": "interface",
+          "name": "Endpoint",
+          "location": {
+            "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+            "line": 29,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "interfaceDef": {
+            "extends": [],
+            "methods": [],
+            "properties": [
+              {
+                "name": "accept",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 30,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "",
+                  "kind": "fnOrConstructor",
+                  "fnOrConstructor": {
+                    "constructor": false,
+                    "tsType": {
+                      "repr": "Promise",
+                      "kind": "typeRef",
+                      "typeRef": {
+                        "typeParams": [
+                          {
+                            "repr": "T",
+                            "kind": "typeRef",
+                            "typeRef": {
+                              "typeParams": null,
+                              "typeName": "T"
+                            }
+                          }
+                        ],
+                        "typeName": "Promise"
+                      }
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "request",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "Request",
+                          "kind": "typeRef",
+                          "typeRef": {
+                            "typeParams": null,
+                            "typeName": "Request"
+                          }
+                        }
+                      },
+                      {
+                        "kind": "identifier",
+                        "name": "url",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "URL",
+                          "kind": "typeRef",
+                          "typeRef": {
+                            "typeParams": null,
+                            "typeName": "URL"
+                          }
+                        }
+                      }
+                    ],
+                    "typeParams": []
+                  }
+                },
+                "typeParams": []
+              },
+              {
+                "name": "handle",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 31,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "",
+                  "kind": "fnOrConstructor",
+                  "fnOrConstructor": {
+                    "constructor": false,
+                    "tsType": {
+                      "repr": "Promise",
+                      "kind": "typeRef",
+                      "typeRef": {
+                        "typeParams": [
+                          {
+                            "repr": "Response",
+                            "kind": "typeRef",
+                            "typeRef": {
+                              "typeParams": null,
+                              "typeName": "Response"
+                            }
+                          }
+                        ],
+                        "typeName": "Promise"
+                      }
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "accepted",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "T",
+                          "kind": "typeRef",
+                          "typeRef": {
+                            "typeParams": null,
+                            "typeName": "T"
+                          }
+                        }
+                      }
+                    ],
+                    "typeParams": []
+                  }
+                },
+                "typeParams": []
+              }
+            ],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": [
+              {
+                "name": "T"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "interface",
+          "name": "MimeTypeConfig",
+          "location": {
+            "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+            "line": 33,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "interfaceDef": {
+            "extends": [],
+            "methods": [],
+            "properties": [
+              {
+                "name": "extensions",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 34,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "",
+                  "kind": "array",
+                  "array": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                },
+                "typeParams": []
+              },
+              {
+                "name": "headers",
+                "location": {
+                  "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+                  "line": 35,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "HeadersInit",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "HeadersInit"
+                  }
+                },
+                "typeParams": []
+              }
+            ],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
+        },
+        {
+          "kind": "typeAlias",
+          "name": "ServeOptions",
+          "location": {
+            "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+            "line": 37,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "typeAliasDef": {
+            "tsType": {
+              "repr": "",
+              "kind": "intersection",
+              "intersection": [
+                {
+                  "repr": "Deno.ListenOptions",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "Deno.ListenOptions"
+                  }
+                },
+                {
+                  "repr": "",
+                  "kind": "typeLiteral",
+                  "typeLiteral": {
+                    "methods": [],
+                    "properties": [
+                      {
+                        "name": "transport",
+                        "params": [],
+                        "computed": false,
+                        "optional": true,
+                        "tsType": {
+                          "repr": "tcp",
+                          "kind": "literal",
+                          "literal": {
+                            "kind": "string",
+                            "string": "tcp"
+                          }
+                        },
+                        "typeParams": []
+                      }
+                    ],
+                    "callSignatures": [],
+                    "indexSignatures": []
+                  }
+                }
+              ]
+            },
+            "typeParams": []
+          }
+        },
+        {
+          "kind": "typeAlias",
+          "name": "ServerOptions",
+          "location": {
+            "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+            "line": 38,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "typeAliasDef": {
+            "tsType": {
+              "repr": "",
+              "kind": "intersection",
+              "intersection": [
+                {
+                  "repr": "ServeOptions",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "ServeOptions"
+                  }
+                },
+                {
+                  "repr": "",
+                  "kind": "typeLiteral",
+                  "typeLiteral": {
+                    "methods": [],
+                    "properties": [
+                      {
+                        "name": "signal",
+                        "params": [],
+                        "computed": false,
+                        "optional": true,
+                        "tsType": {
+                          "repr": "AbortSignal",
+                          "kind": "typeRef",
+                          "typeRef": {
+                            "typeParams": null,
+                            "typeName": "AbortSignal"
+                          }
+                        },
+                        "typeParams": []
+                      }
+                    ],
+                    "callSignatures": [],
+                    "indexSignatures": []
+                  }
+                }
+              ]
+            },
+            "typeParams": []
+          }
+        },
+        {
+          "kind": "function",
+          "name": "serve",
+          "location": {
+            "filename": "file:///I:/jdavid/deno_http1_server/mod.d.ts",
+            "line": 39,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "functionDef": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "options",
+                "optional": false,
+                "tsType": {
+                  "repr": "ServerOptions",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "ServerOptions"
+                  }
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "Promise",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": [
+                  {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "keyword": "void"
+                  }
+                ],
+                "typeName": "Promise"
+              }
+            },
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ]
+    }
+  }
+]
