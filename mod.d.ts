@@ -12,6 +12,7 @@ declare module server {
   export type DomainName = string;
   export interface StaticConfig {
     domain: DomainName,
+    headers: HeadersInit,
     path?: string,
     excludes?: string[],
     mime_types: MimeTypeConfig

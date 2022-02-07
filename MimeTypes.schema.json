@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/programingjd/deno_http1_server/main/MimeTypes.schema.json",
+  "title": "MimeTypes",
+  "description": "File type configs for the different accepted mime types",
+  "type": "object",
+  "definitions": {
+    "?MimeTypeConfig": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://raw.githubusercontent.com/programingjd/deno_http1_server/main/MimeTypeConfig.schema.json"
+        }
+      ]
+    }
+  },
+  "patternProperties": {
+    "^[a-z]+/[a-z0-9.+-]+$": {
+      "$ref": "#/definitions/?MimeTypeConfig"
+    }
+  },
+  "additionalProperties": false
+}
