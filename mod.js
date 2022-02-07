@@ -1,4 +1,5 @@
 import {magenta,yellow,bold} from 'https://deno.land/std/fmt/colors.ts';
+import Ajv from 'https://esm.sh/ajv';
 
 /** @type {Set<DomainName>} */
 const localDomains=new Set([
@@ -55,6 +56,8 @@ const handle=async(requestEvent,url,endpoints)=>{
 const serve=async(options)=>{
   const {signal=null}=options;
 
+  let headers=new Headers();
+
   /** @type {State} */
   let state={
     directories:new Set(),
@@ -67,6 +70,13 @@ const serve=async(options)=>{
    */
   const updateState=async(dir)=>{
     if(!dir){
+      const defaultHeaders=await import('./headers.json',{assert:{type:'json'}});
+      for(const [key,value] of Object.entries(defaultHeaders.default)){
+        if(typeof value!=='string'){
+          throw new Error(`Default header value for ${key} should be a string.`);
+        }
+        headers.set(key,value);
+      }
       for await(const it of Deno.readDir('.')){
         if(it.isDirectory){
           try{
@@ -80,7 +90,7 @@ const serve=async(options)=>{
     }
     console.log(bold(`${magenta('Directory')}: ${dir}`));
     const config = await import(`./${dir}/directory.json`,{assert:{type:'json'}});
-    console.log(JSON.stringify(config));
+    console.log(JSON.stringify(config.default));
   };
 
   /** @type {Endpoint<boolean>} */
