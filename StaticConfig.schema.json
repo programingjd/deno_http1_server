@@ -7,7 +7,8 @@
   "properties": {
     "domain": {
       "description": "The domain to use for static files.",
-      "type": "string"
+      "type": "string",
+      "pattern": "^.{1,61}[.].{2,24}$"
     },
     "headers": {
       "description": "Custom headers for all file types",
@@ -29,6 +30,7 @@
     "path": {
       "description": "Path under which the files will be served.",
       "type": "string",
+      "minLength": 1,
       "default": "/"
     },
     "excludes": {
