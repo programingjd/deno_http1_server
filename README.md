@@ -1,16 +1,16 @@
 # Deno HTTP/1.1 server #
 
-## Why HTTP/1.1 ?
+## <a id="why_http1">Why HTTP/1.1 ?</a>
 
 This server is supposed to be behind another server that handles HTTPS and the TLS Certificates, as well as HTTP2 and HTTP3 upgrades.
 
 This can be a CDN like [cloudflare](https://www.cloudflare.com/) and/or another server like [nginx](https://www.nginx.com/) or [caddy](https://caddyserver.com/).
 
-## File structure
+## <a id="file_structure">File structure</a>
 
 The server will scan the current directory looking for subdirectories (direct children) containing a `directory.json` config file (direct child).
 
-## directory.json config files
+## <a id="directory_config_files">directory.json config files</a>
 
 ```json
 {
@@ -31,22 +31,43 @@ The server will scan the current directory looking for subdirectories (direct ch
   }
 }
 ```
+- `domains` is an array of domains that should use this directory config.
 
-## Endpoints
+- `headers` are headers that will be applied to all endpoints and mime types.<br>
+You can unset a header by setting its value to `null`.<br>
+_This field is optional._
+
+- `endpoints` is an array of modules implementing custom endpoints.<br>
+If static file serving is enabled, they take precedence over the endpoints.<br>
+_This field is optional._
+
+- `static` enables static file serving and specifies its configuration.<br>
+_This field is optional._<br>
+  - `domain` specifies which domain to redirect to.<br>
+  _This field is only necessary if there are multiple domains enabled for the directory._
+  - `path` under which path to serve the static files.<br>
+  _This field is optional and defaults to `"/"`._
+  - `excludes` is a list of relative paths to exclude.
+  It's usually a good idea to exclude the module files used for the endpoints.<br>
+  _This field is optional._
+  - `mime_types` is a list of mime type overrides. See [File types](#file_types) for how to configure a file type. You can disable a file type by associating its mime-type key to `null`.<br>
+  _This field is optional._
+
+## <a id="endpoints">Endpoints</a>
 
 Endpoints can be implemented in js modules.
 The default export should be an `Endpoint<*>[]` or an `async () => Endpoint<*>[]`. 
 
 When multiple domains are used, no redirection is done by default. Redirection to a specific domain should be done in the endpoints if desired.
 
-## Static files
+## <a href="static_files">Static files</a>
 
 Static files are pre-compressed when applicable and preloaded into memory to improve speed and avoid disk io bottlenecks.
 
-### Indexes
+### <a id="indexes">Indexes</a>
 `index.html` is used for the directory itself. If this file doesn't exist, then a `404` is returned.
 
-### Redirects
+### <a id="redirects">Redirects</a>
 A redirect is used to remove the trailing slash for
 the domain root.
 
@@ -60,7 +81,7 @@ If there are multiple domains specified, requests will be redirected to the doma
 
 `http://example.com/hero.svg` redirects to `http://www.example.com/hero.svg` with a `301`.
 
-### File types
+### <a id="file_types">File types</a>
 There's a list of default file types that can be overwritten.
 
 The configuration of a file type includes:
