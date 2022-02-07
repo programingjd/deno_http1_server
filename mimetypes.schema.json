@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/programingjd/deno_http1_server/blob/main/mimetypes.schema.json",
+  "$id": "https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mimetypes.schema.json",
   "title": "MimeTypes",
   "description": "File type configs for the different accepted mime types",
   "type": "object",
@@ -11,7 +11,7 @@
           "type": "string"
         },
         {
-          "$ref": "https://github.com/programingjd/deno_http1_server/blob/main/mimetype_config.schema.json"
+          "$ref": "https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mimetype_config.schema.json"
         }
       ]
     }
