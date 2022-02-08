@@ -1,3 +1,6 @@
+import Ajv, {ErrorObject} from "https://cdn.esm.sh/v66/ajv@8.10.0/dist/core.d.ts";
+import {DataValidationCxt} from "https://cdn.esm.sh/v66/ajv@8.10.0/dist/types/index.d.ts";
+
 declare module server {
   export type MimeType = string;
   export interface MimeTypeConfig {
@@ -12,21 +15,18 @@ declare module server {
   export type DomainName = string;
   export interface StaticConfig {
     domain: DomainName,
-    headers: HeadersInit,
+    headers?: HeadersInit,
     path?: string,
     excludes?: string[],
     mime_types: MimeTypeConfig
   }
   export interface DirectoryConfig {
     domains: DomainName[],
-    headers: HeadersInit,
+    headers?: Record<string,string>,
     endpoints?: string[],
     static?: StaticConfig
   }
   export type DirectoryName = string;
-  export interface DomainDirectories {
-    [key: DirectoryName]: DomainName[];
-  }
   export interface Endpoint<T> {
     accept: (request: Request, url: URL) => Promise<T>
     handle: (accepted: T) => Promise<Response>
@@ -34,9 +34,11 @@ declare module server {
   export type ServeOptions = Deno.ListenOptions & { transport?: 'tcp' }
   export type ServerOptions = ServeOptions & { signal?: AbortSignal }
   export function serve(options: ServerOptions):Promise<void>
-
-  interface State {
-    directories: Set<DirectoryName>;
-    endpoints: Map<DomainName,Endpoint<unknown>[]>
+  interface DirectoryEndpoints {
+    directory: string,
+    domains: DomainName[],
+    endpoints?: Endpoint<unknown>[]
   }
+  type State = Map<DomainName,DirectoryEndpoints>;
+  export type ValidateFunction<T> = (data: unknown)=>T & {errors?:ErrorObject[]};
 }
