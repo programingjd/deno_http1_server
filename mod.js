@@ -1,5 +1,5 @@
 import {magenta,yellow,bold} from 'https://deno.land/std/fmt/colors.ts';
-import Ajv from 'https://esm.sh/ajv';
+import Ajv from 'https://esm.sh/ajv?bundle';
 
 /** @type {Set<DomainName>} */
 const localDomains=new Set([
