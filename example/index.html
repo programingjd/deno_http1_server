@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Example</title>
+</head>
+<link rel="stylesheet" href="styles.css">
+<body>
+<img src="deno.svg">
+<h1><a href="javascript:test()">Test</a> page for Deno Http1 Server</h1>
+<info></info>
+<script>
+const info=document.querySelector('info');
+document.addEventListener('click',_=>info.classList.remove('active'));
+let busy=false;
+function color(status){
+  if(status>=500) return 'orange';
+  if(status>=400) return 'red';
+  if(status>=300) return 'yellow';
+  if(status>=200) return 'green';
+  return 'inherit';
+}
+function test(){
+  if(busy) return;
+  busy=true;
+  (async()=>{
+    try{
+      const response=await fetch('./endpoint');
+      info.innerHTML=`
+        <b>GET</b> /endpoint<br>
+        <span style="color:${color(response.status)}">${response.status} ${response.statusText}</span><br>
+        ${[...response.headers].map(it=>`${it[0]}: ${it[1]}`).join('<br>\n')}
+        <br><br>
+        <div></div>
+      `;
+      info.querySelector('div').textContent=(await response.text());
+    }catch(err){
+      info.textContent=err.message;
+    }
+    finally{
+      busy=false;
+      info.classList.add('active');
+    }
+  })();
+}
+</script>
+</body>
+</html>

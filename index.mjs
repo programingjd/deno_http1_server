@@ -21,4 +21,4 @@ const controller=new AbortController();
 //   controller.abort();
 // });
 // console.info('Press Ctrl-C to stop the server.');
-await serve({hostname:host||'0.0.0.0',port:port||8080,transport:'tcp',signal:controller.signal});
+await serve({hostname:host||'0.0.0.0',port:port||80,transport:'tcp',signal:controller.signal});

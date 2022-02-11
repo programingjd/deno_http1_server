@@ -1,3 +1,8 @@
 {
-  "domains": [ "example.com", "www.example.com" ]
+  "domains": [ "test.local", "www.test.local" ],
+  "endpoints": [],
+  "static": {
+    "path": "/test",
+    "domain": "www.test.local"
+  }
 }

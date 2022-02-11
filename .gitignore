@@ -1,6 +1,5 @@
-.*
 *.br
 /package-lock.json
 validators/package-lock.json
-validators/node_modules
+validators/node_modules/
 validators/validator.js
