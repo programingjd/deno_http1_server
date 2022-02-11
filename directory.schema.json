@@ -81,7 +81,7 @@
         },
         "mime_types": {
           "description": "File types config",
-          "$ref": "https://raw.githubusercontent.com/programingjd/deno_http1_server/main/MimeTypes.schema.json"
+          "$ref": "https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mimes.schema.json"
         }
       },
       "additionalProperties": false
