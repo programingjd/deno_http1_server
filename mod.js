@@ -1,8 +1,4 @@
 import {magenta,yellow,bold} from 'https://deno.land/std/fmt/colors.ts';
-import {
-  /** @type {ValidateFunction<*>} */ validateDirectoryConfig_,
-  /** @type {ValidateFunction<*>} */ validateMimeTypes_
-} from './validator.js';
 
 /** @type {Set<DomainName>} */
 const localDomains=new Set([
@@ -26,6 +22,17 @@ const address=(options)=>{
   if(port===80) return host;
   return `${host}:${port}`;
 };
+
+/** @type {Object<string,ValidateFunction<*>>} */
+const {validateDirectoryConfig_,validateMimeTypes_}=await(async()=>{
+  try{
+    return await import('./validator.js');
+  }catch(err){
+    console.error('Failed to load validators.');
+    console.error(err);
+    return {validateDirectoryConfig_:null,validateMimeTypes_:null};
+  }
+})();
 
 /**
  * @param {Deno.RequestEvent} requestEvent
@@ -70,7 +77,7 @@ const serve=async(options)=>{
   const validateMimeTypes=await(async()=>{
     const json=(await import('./mimes.schema.json',{assert:{type:'json'}})).default;
     return (data)=>{
-      if(!validateMimeTypes_(json)){
+      if(validateMimeTypes_&&!validateMimeTypes_(data)){
         throw new Error(validateMimeTypes_.errors?.map(it=>`Error validating ${it.keyword}:\n${it.message}`).join('\n'));
       }
       return data;
@@ -82,6 +89,9 @@ const serve=async(options)=>{
   const validateDirectoryConfig=await(async()=>{
     const json=(await import('./directory.schema.json',{assert:{type:'json'}})).default;
     return (data)=>{
+      if(validateDirectoryConfig_&&!validateDirectoryConfig_(data)){
+        throw new Error(validateDirectoryConfig_.errors?.map(it=>`Error validating ${it.keyword}:\n${it.message}`).join('\n'));
+      }
       return data;
     }
   })();

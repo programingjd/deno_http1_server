@@ -29,7 +29,8 @@
             }
           ]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "endpoints": {
       "description": "List of modules implementing custom endpoints",
@@ -62,7 +63,8 @@
                 }
               ]
             }
-          }
+          },
+          "additionalProperties": false
         },
         "path": {
           "description": "Path under which the files will be served.",
@@ -81,8 +83,10 @@
           "description": "File types config",
           "$ref": "https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mimes.schema.json"
         }
-      }
+      },
+      "additionalProperties": false
     }
   },
-  "required": [ "domains" ]
+  "required": [ "domains" ],
+  "additionalProperties": false
 }
