@@ -1,6 +1,6 @@
 {
-  "$schema": "http://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/programingjd/deno_http1_server/main/MimeTypeConfig.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mimetype.schema.json",
   "title": "MimeTypeConfig",
   "description": "File type config for files of a specific mime type",
   "type": "object",

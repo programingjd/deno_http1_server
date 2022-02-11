@@ -1,5 +1,4 @@
 import {magenta,yellow,bold} from 'https://deno.land/std/fmt/colors.ts';
-import Ajv from 'https://esm.sh/ajv?bundle';
 
 /** @type {Set<DomainName>} */
 const localDomains=new Set([
@@ -65,25 +64,19 @@ const serve=async(options)=>{
 
   /** @type {ValidateFunction<MimeTypes>} */
   const validateMimeTypes=await(async()=>{
-    const validate=new Ajv().compile(
-      (await import('./MimeTypes.schema.json',{assert:{type:'json'}})).default
-    );
+    const json=(await import('./mimes.schema.json',{assert:{type:'json'}})).default;
     return (data)=>{
-      if(!validate(data)) throw new Error(validate.errors.join('\n'));
       return data;
     };
   })();
-  let mimes=validateMimeTypes(await import('./mimes.json',{assert:{type:'json'}}).default);
+  let mimes=validateMimeTypes((await import('./mimes.json',{assert:{type:'json'}})).default);
 
   /** @type {ValidateFunction<DirectoryConfig>} */
   const validateDirectoryConfig=await(async()=>{
-    const validate=new Ajv().compile(
-      (await import('./DirectoryConfig.schema.json',{assert:{type:'json'}})).default
-    );
+    const json=(await import('./directory.schema.json',{assert:{type:'json'}})).default;
     return (data)=>{
-      if(!validate(data)) throw new Error(validate.errors.join('\n'));
       return data;
-    };
+    }
   })();
 
   /**
@@ -93,9 +86,8 @@ const serve=async(options)=>{
   const updateDirectoryState=async(dir)=>{
     try{
       console.log(bold(`${magenta('Directory')}: ${dir}`));
-      const config=validateDirectoryConfig(
-        await import(`./${dir}/directory.json`,{assert:{type:'json'}}).default
-      );
+      const mod=await import(`./${dir}/directory.json`,{assert:{type:'json'}});
+      const config=validateDirectoryConfig(mod.default);
       /**
        * @param {string} mod
        * @return {Promise<[Endpoint<*>]>}

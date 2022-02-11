@@ -1,6 +1,6 @@
 {
-  "$schema": "http://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/programingjd/deno_http1_server/main/DirectoryConfig.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/programingjd/deno_http1_server/main/directory.schema.json",
   "title": "DirectoryConfig",
   "description": "File type configs for the different accepted mime types",
   "type": "object",

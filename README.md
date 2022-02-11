@@ -147,3 +147,11 @@ Example configuration:
 ```
 
 The list of default types is [here](mimes.json).
+
+
+## <a id="json_validation">JSON validation</a>
+
+A Draft 2020-20 JSON Schema is available to validate the directory.json files:
+  `directory.schema.json`
+
+The server uses the same schema to validate the configuration files.
