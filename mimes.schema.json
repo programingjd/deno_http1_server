@@ -20,6 +20,5 @@
     "^[a-z]+/[a-z0-9.+-]+$": {
       "$ref": "#/definitions/?MimeTypeConfig"
     }
-  },
-  "additionalProperties": false
+  }
 }

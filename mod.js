@@ -1,4 +1,8 @@
 import {magenta,yellow,bold} from 'https://deno.land/std/fmt/colors.ts';
+import {
+  /** @type {ValidateFunction<*>} */ validateDirectoryConfig_,
+  /** @type {ValidateFunction<*>} */ validateMimeTypes_
+} from './validator.js';
 
 /** @type {Set<DomainName>} */
 const localDomains=new Set([
@@ -66,6 +70,9 @@ const serve=async(options)=>{
   const validateMimeTypes=await(async()=>{
     const json=(await import('./mimes.schema.json',{assert:{type:'json'}})).default;
     return (data)=>{
+      if(!validateMimeTypes_(json)){
+        throw new Error(validateMimeTypes_.errors?.map(it=>`Error validating ${it.keyword}:\n${it.message}`).join('\n'));
+      }
       return data;
     };
   })();
@@ -99,8 +106,7 @@ const serve=async(options)=>{
       /** @type {[Endpoint<*>]} */
       const endpoints=[
         staticEndpoint,
-        ...(await Promise.all(config.endpoints.map(mod=>load(mod))
-      )).flat(1)].filter(it=>it);
+        ...(await Promise.all(config.endpoints?.map(mod=>load(mod))||[])).flat(1)].filter(it=>it);
       return {
         directory: dir,
         domains: config.domains,

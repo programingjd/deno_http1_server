@@ -28,8 +28,7 @@
             }
           ]
         }
-      },
-      "additionalProperties": false
+      }
     },
     "compress": {
       "description": "Whether to enable automatic brotli compression or not.",
@@ -52,6 +51,5 @@
       ]
     }
   },
-  "required": [ "prefixes", "compress", "cache_threshold" ],
-  "additionalProperties": false
+  "required": [ "prefixes", "compress", "cache_threshold" ]
 }

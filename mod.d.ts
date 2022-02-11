@@ -1,6 +1,3 @@
-import Ajv, {ErrorObject} from "https://cdn.esm.sh/v66/ajv@8.10.0/dist/core.d.ts";
-import {DataValidationCxt} from "https://cdn.esm.sh/v66/ajv@8.10.0/dist/types/index.d.ts";
-
 declare module server {
   export type MimeType = string;
   export interface MimeTypeConfig {
@@ -40,5 +37,9 @@ declare module server {
     endpoints?: Endpoint<unknown>[]
   }
   type State = Map<DomainName,DirectoryEndpoints>;
-  export type ValidateFunction<T> = (data: unknown)=>T & {errors?:ErrorObject[]};
+  interface ErrorObject {
+    keyword: string
+    message?: string
+  }
+  type ValidateFunction<T> = (data: unknown)=>T & {errors?:ErrorObject[]};
 }
