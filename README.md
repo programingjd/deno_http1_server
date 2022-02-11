@@ -132,7 +132,7 @@ Example configuration:
 ```json
 {
   "text/plain": {
-    "prefixes": [
+    "suffixes": [
       ".txt",
       "readme"
     ],

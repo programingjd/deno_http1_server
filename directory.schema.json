@@ -70,7 +70,8 @@
           "description": "Path under which the files will be served.",
           "type": "string",
           "minLength": 1,
-          "default": "/"
+          "default": "/",
+          "pattern": "^/[a-zA-Z0-9-._~!$&'()*+,;=:@/]+$"
         },
         "excludes": {
           "description": "List of relative paths to exclude.",

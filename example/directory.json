@@ -1,8 +1,13 @@
 {
   "domains": [ "test.local", "www.test.local" ],
-  "endpoints": [],
+  "endpoints": [
+    "endpoints.mjs"
+  ],
   "static": {
     "path": "/test",
-    "domain": "www.test.local"
+    "domain": "www.test.local",
+    "excludes": [
+      "endpoints.mjs"
+    ]
   }
 }

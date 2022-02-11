@@ -46,6 +46,7 @@ const handle=async(requestEvent,url,endpoints)=>{
       try{
         const accepted=await endpoint.accept(requestEvent.request,url);
         if(accepted!==null){
+          console.debug(`Request accepted.`);
           try{
             return requestEvent.respondWith(await endpoint.handle(accepted));
           }catch(err){
@@ -68,14 +69,18 @@ const handle=async(requestEvent,url,endpoints)=>{
 const serve=async(options)=>{
   const {signal=null}=options;
 
-  let headers=new Headers((await import('./headers.json',{assert:{type:'json'}})).default);
+  let defaultHeaders=(await import('./headers.json',{assert:{type:'json'}})).default;
+  for(const [,value] of Object.entries(defaultHeaders)){
+    if(typeof value!=='string'){
+      throw new Error('Header value for default header "`${key}`" should be a string.');
+    }
+  }
 
   /** @type {State} */
   let state=new Map();
 
   /** @type {ValidateFunction<MimeTypes>} */
   const validateMimeTypes=await(async()=>{
-    const json=(await import('./mimes.schema.json',{assert:{type:'json'}})).default;
     return (data)=>{
       if(validateMimeTypes_&&!validateMimeTypes_(data)){
         throw new Error(validateMimeTypes_.errors?.map(it=>`Error validating ${it.keyword}:\n${it.message}`).join('\n'));
@@ -83,11 +88,10 @@ const serve=async(options)=>{
       return data;
     };
   })();
-  let mimes=validateMimeTypes((await import('./mimes.json',{assert:{type:'json'}})).default);
+  let defaultMimes=validateMimeTypes((await import('./mimes.json',{assert:{type:'json'}})).default);
 
   /** @type {ValidateFunction<DirectoryConfig>} */
   const validateDirectoryConfig=await(async()=>{
-    const json=(await import('./directory.schema.json',{assert:{type:'json'}})).default;
     return (data)=>{
       if(validateDirectoryConfig_&&!validateDirectoryConfig_(data)){
         throw new Error(validateDirectoryConfig_.errors?.map(it=>`Error validating ${it.keyword}:\n${it.message}`).join('\n'));
@@ -95,72 +99,6 @@ const serve=async(options)=>{
       return data;
     }
   })();
-
-  /**
-   * @param {DirectoryName} dir
-   * @return {Promise<?DirectoryEndpoints>}
-   */
-  const updateDirectoryState=async(dir)=>{
-    try{
-      console.log(bold(`${magenta('Directory')}: ${dir}`));
-      const mod=await import(`./${dir}/directory.json`,{assert:{type:'json'}});
-      const config=validateDirectoryConfig(mod.default);
-      /**
-       * @param {string} mod
-       * @return {Promise<[Endpoint<*>]>}
-       */
-      const load=async(mod)=>{
-        return [(await import(`./${mod}`)).default].flat(1);
-      };
-      const staticEndpoint=null; //todo
-      /** @type {[Endpoint<*>]} */
-      const endpoints=[
-        staticEndpoint,
-        ...(await Promise.all(config.endpoints?.map(mod=>load(mod))||[])).flat(1)].filter(it=>it);
-      return {
-        directory: dir,
-        domains: config.domains,
-        endpoints
-      }
-    }catch(err){
-      console.error(err);
-      return null;
-    }
-  };
-  /**
-   * @return {Promise<State>}
-   */
-  const updateState=async()=>{
-    /** @type {State} */
-    const state=new Map();
-    /**
-     * @param {string} name
-     * @returns {Promise<boolean>}
-     */
-    const hasConfig=async(name)=>{
-      try{
-        return (await Deno.lstat(`./${name}/directory.json`)).isFile;
-      }catch(_){
-        return false;
-      }
-    };
-    for await(const it of Deno.readDir('.')){
-      if(it.isDirectory){
-        if(it.name.charAt(0)==='.') continue;
-        if(await hasConfig(it.name)){
-          const config=await updateDirectoryState(it.name);
-          if(!config) throw new Error(`Could not load config for directory "${it.name}".`);
-          for(const domain of config.domains){
-            if(state.has(domain)) {
-              throw new Error(`Domain "${domain}" is assigned to two different directories.`);
-            }
-            state.set(domain,config);
-          }
-        }
-      }
-    }
-    return state;
-  }
 
   /** @type {Endpoint<boolean>} */
   const updateAllEndpoint={
@@ -204,7 +142,7 @@ const serve=async(options)=>{
     },
     handle: async function(accepted){
       const {name,updating}=accepted;
-      if(updating) return new Response({status:429});
+      if(updating) return new Response(null,{status:429});
       try{
         const newConfig=await updateDirectoryState(name);
         if(!newConfig) throw new Error(`Could not load config for directory "${name}".`);
@@ -228,23 +166,176 @@ const serve=async(options)=>{
       }
     }
   };
-  /** @type {DirectoryEndpoints} */
-  const endpoints={
-    directory: '.local',
-    domains: [...localDomains],
-    endpoints: [updateAllEndpoint,updateDirectoryEndpoint]
-  };
-  for(const domain of localDomains){
-    state.set(domain,endpoints);
+
+  /**
+   * @param {string} path
+   * @returns {string}
+   */
+  function sanitizePath(path){
+    path=path||'/';
+    if(!path.startsWith('/')) path=`/${path}`;
+    path=path.replace(/\/{2,}/g,'/');
+    if(path.endsWith('/')) path=path.substring(0,path.length-1);
+    return path;
   }
-  await updateState();
+
+  /**
+   * @param {string} path
+   * @param {string} prefix
+   * @param {Object<string,string>} staticHeaders
+   * @param {MimeTypes} mimes
+   * @param {Map<string,CacheValue>} cache
+   * @returns {Promise<void>}
+   */
+  async function walk(path,prefix,staticHeaders,mimes,cache){
+    /** @type [[string,MimeTypeConfig]] */
+    const mimeEntries=Object.entries(mimes);
+    for await(const it of Deno.readDir(path)){
+      const name=it.name;
+      if(it.isFile){
+        const mimeEntry=mimeEntries.find(
+          ([,value])=>value.suffixes.find(suffix=>name.endsWith(suffix))
+        );
+        if(mimeEntry){
+          let filename=`${path}/${name}`;
+          let pathname;
+          if(it.name==='index.html'){
+            pathname=prefix===''?'':`${prefix}/`;
+            const redir=prefix===''?`${prefix}/`:prefix;
+            cache.set(
+              redir,
+              {
+                headers:new Headers([
+                  ...headers,
+                  ...staticHeaders,
+                  ['location',redir]
+                ])
+              }
+            );
+          }else pathname=`${prefix}/${name}`;
+          const stat=await Deno.stat(filename);
+          const body=await Deno.readFile(filename);
+          const etag=`${stat.mtime.getTime().toString(16)}:${stat.size.toString(16)}`;
+          cache.set(
+            pathname,
+            {
+              headers:new Headers([
+                ...headers,
+                ...staticHeaders,
+                ...mimeHeaders,
+                ['ETag',etag],
+              ])
+            }
+          );
+        }
+      }else if(it.isDirectory){
+        await walk(`${path}/${name}`,`${prefix}/${name}`,staticHeaders,mimes,cache);
+      }
+    }
+  }
+
+  /**
+   * @param {DirectoryName} dir
+   * @param {Object<string,string>} headers
+   * @param {?StaticConfig} config
+   * @return {Promise<?Endpoint<CacheValue>>}
+   */
+  async function staticEndpoint(dir, headers, config){
+    if(!config) return null;
+    /** @type {Map<string,CacheValue>} */
+    const cache=new Map();
+    const path=sanitizePath(config.path);
+    const mimes=Object.assign({...mimes},config.mime_types||{});
+    await walk(dir,path,headers,mimes,cache);
+  }
+
+  /**
+   * @param {DirectoryName} dir
+   * @return {Promise<?DirectoryEndpoints>}
+   */
+  async function updateDirectoryState(dir){
+    try{
+      console.log(bold(`${magenta('Directory')}: ${dir}`));
+      const mod=await import(`./${dir}/directory.json`,{assert:{type:'json'}});
+      const config=validateDirectoryConfig(mod.default);
+      /**
+       * @param {string} mod
+       * @return {Promise<[Endpoint<*>]>}
+       */
+      const load=async(mod)=>{
+        return [(await import(`./${dir}/${mod}`)).default].flat(1);
+      };
+      /** @type {[Endpoint<*>]} */
+      const endpoints=[
+        staticEndpoint(dir,config.headers,config.static),
+        ...(await Promise.all(config.endpoints?.map(mod=>load(mod))||[])).flat(1)
+      ].filter(it=>it);
+      return {
+        directory: dir,
+        domains: config.domains,
+        endpoints
+      }
+    }catch(err){
+      console.error(err);
+      return null;
+    }
+  }
+  /**
+   * @return {Promise<State>}
+   */
+  async function updateState(){
+    /** @type {State} */
+    const state=new Map();
+    /**
+     * @param {string} name
+     * @returns {Promise<boolean>}
+     */
+    const hasConfig=async(name)=>{
+      try{
+        return (await Deno.lstat(`./${name}/directory.json`)).isFile;
+      }catch(_){
+        return false;
+      }
+    };
+    /** @type {DirectoryEndpoints} */
+    const localEndpoints={
+      directory: '.local',
+      domains: [...localDomains],
+      endpoints: [updateAllEndpoint,updateDirectoryEndpoint]
+    };
+    for(const domain of localDomains){
+      state.set(domain,localEndpoints);
+    }
+    for await(const it of Deno.readDir('.')){
+      if(it.isDirectory){
+        if(it.name.charAt(0)==='.') continue;
+        if(await hasConfig(it.name)){
+          const config=await updateDirectoryState(it.name);
+          if(!config) throw new Error(`Could not load config for directory "${it.name}".`);
+          for(const domain of config.domains){
+            if(state.has(domain)) {
+              throw new Error(`Domain "${domain}" is assigned to two different directories.`);
+            }
+            state.set(domain,config);
+          }
+        }
+      }
+    }
+    return state;
+  }
+
+  state=await updateState();
   const server=Deno.listen(options);
   // noinspection HttpUrlsUsage
   console.log(bold(`Listening on http://${address(options)}.`));
-  for await(const conn of server){
-    if(signal?.aborted===true) break;
+  signal.addEventListener('abort',()=>server.close());
+  /**
+   * @param {Deno.HttpConn} requests
+   * @returns {Promise<void>}
+   */
+  const handleRequests=async(requests)=>{
     try{
-      for await(/** @type {Deno.RequestEvent} */const requestEvent of Deno.serveHttp(conn)){
+      for await(/** @type {Deno.RequestEvent} */const requestEvent of requests){
         try{
           const url=new URL(requestEvent.request.url);
           const hostname=url.hostname;
@@ -253,10 +344,20 @@ const serve=async(options)=>{
         }catch(err){
           console.warn(err);
         }
+        if(signal?.aborted===true) break;
       }
     }catch(err){
       console.warn(err);
     }
+  }
+  for await(const conn of server){
+    try{
+      // noinspection ES6MissingAwait
+      handleRequests(Deno.serveHttp(conn))
+    }catch(err){
+      console.warn(err);
+    }
+    if(signal?.aborted===true) break;
   }
   await Deno.shutdown(server.rid);
 };

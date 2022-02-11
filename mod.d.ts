@@ -1,7 +1,7 @@
 declare module server {
   export type MimeType = string;
   export interface MimeTypeConfig {
-    prefixes: string[],
+    suffixes: string[],
     headers: HeadersInit,
     compress: boolean,
     cache_threshold?: string|number
@@ -37,6 +37,11 @@ declare module server {
     endpoints?: Endpoint<unknown>[]
   }
   type State = Map<DomainName,DirectoryEndpoints>;
+  type Uint8ArrayAsyncFunction=()=>Promise<Uint8Array>;
+  interface CacheValue {
+    headers: Headers,
+    body?: Uint8Array|Uint8ArrayAsyncFunction
+  }
   interface ErrorObject {
     keyword: string
     message?: string
