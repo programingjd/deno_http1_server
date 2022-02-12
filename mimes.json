@@ -1,6 +1,6 @@
 {
   "text/html": {
-    "prefixes": [
+    "suffixes": [
       ".html", ".htm"
     ],
     "headers": {
@@ -10,7 +10,7 @@
     "cache_threshold": null
   },
   "text/css": {
-    "prefixes": [
+    "suffixes": [
       ".css"
     ],
     "headers": {
@@ -20,7 +20,7 @@
     "cache_threshold": null
   },
   "application/javascript": {
-    "prefixes": [
+    "suffixes": [
       ".js", ".mjs", ".js.map", ".mjs.map"
     ],
     "headers": {
@@ -30,7 +30,7 @@
     "cache_threshold": null
   },
   "text/plain": {
-    "prefixes": [
+    "suffixes": [
       ".txt", ".wat", ".glsl"
     ],
     "headers": {
@@ -40,7 +40,7 @@
     "cache_threshold": null
   },
   "application/manifest+json": {
-    "prefixes": [
+    "suffixes": [
       "manifest.json", ".manifest"
     ],
     "headers": {
@@ -50,7 +50,7 @@
     "cache_threshold": null
   },
   "font/woff2": {
-    "prefixes": [
+    "suffixes": [
       ".woff2"
     ],
     "headers": {
@@ -60,7 +60,7 @@
     "cache_threshold": null
   },
   "image/jpeg": {
-    "prefixes": [
+    "suffixes": [
       ".jpg", ".jpeg"
     ],
     "headers": {
@@ -70,7 +70,7 @@
     "cache_threshold": null
   },
   "image/png": {
-    "prefixes": [
+    "suffixes": [
       ".png"
     ],
     "headers": {
@@ -80,7 +80,7 @@
     "cache_threshold": null
   },
   "image/webp": {
-    "prefixes": [
+    "suffixes": [
       ".webp"
     ],
     "headers": {
@@ -90,7 +90,7 @@
     "cache_threshold": null
   },
   "image/svg+xml": {
-    "prefixes": [
+    "suffixes": [
       ".svg"
     ],
     "headers": {
@@ -100,7 +100,7 @@
     "cache_threshold": null
   },
   "image/x-icon": {
-    "prefixes": [
+    "suffixes": [
       ".ico"
     ],
     "headers": {
@@ -110,7 +110,7 @@
     "cache_threshold": null
   },
   "application/schema+json": {
-    "prefixes": [
+    "suffixes": [
       ".schema.json"
     ],
     "headers": {
@@ -120,7 +120,7 @@
     "cache_threshold": null
   },
   "application/json": {
-    "prefixes": [
+    "suffixes": [
       ".json"
     ],
     "headers": {
@@ -130,7 +130,7 @@
     "cache_threshold": null
   },
   "application/ld+json": {
-    "prefixes": [
+    "suffixes": [
       ".jsonld"
     ],
     "headers": {
@@ -140,7 +140,7 @@
     "cache_threshold": null
   },
   "application/geo+json": {
-    "prefixes": [
+    "suffixes": [
       ".geojson"
     ],
     "headers": {
@@ -150,7 +150,7 @@
     "cache_threshold": null
   },
   "application/gpx+xml": {
-    "prefixes": [
+    "suffixes": [
       ".gpx"
     ],
     "headers": {
@@ -160,7 +160,7 @@
     "cache_threshold": null
   },
   "application/vnd.google-earth.kml+xml": {
-    "prefixes": [
+    "suffixes": [
       ".kml"
     ],
     "headers": {
@@ -170,7 +170,7 @@
     "cache_threshold": null
   },
   "application/wasm": {
-    "prefixes": [
+    "suffixes": [
       ".wasm"
     ],
     "headers": {
@@ -180,7 +180,7 @@
     "cache_threshold": null
   },
   "model/gltf+json": {
-    "prefixes": [
+    "suffixes": [
       ".gltf"
     ],
     "headers": {
@@ -190,7 +190,7 @@
     "cache_threshold": null
   },
   "model/gltf-binary": {
-    "prefixes": [
+    "suffixes": [
       ".glb"
     ],
     "headers": {
@@ -200,7 +200,7 @@
     "cache_threshold": null
   },
   "text/csv": {
-    "prefixes": [
+    "suffixes": [
       ".csv"
     ],
     "headers": {
@@ -210,7 +210,7 @@
     "cache_threshold": null
   },
   "text/markdown": {
-    "prefixes": [
+    "suffixes": [
       ".csv"
     ],
     "headers": {
@@ -220,7 +220,7 @@
     "cache_threshold": null
   },
   "text/asciidoc": {
-    "prefixes": [
+    "suffixes": [
       ".adoc"
     ],
     "headers": {
@@ -230,7 +230,7 @@
     "cache_threshold": null
   },
   "application/xml": {
-    "prefixes": [
+    "suffixes": [
       ".xml", ".xsd"
     ],
     "headers": {
@@ -240,7 +240,7 @@
     "cache_threshold": null
   },
   "application/xml-dtd": {
-    "prefixes": [
+    "suffixes": [
       ".dtd"
     ],
     "headers": {
@@ -250,7 +250,7 @@
     "cache_threshold": null
   },
   "application/atom+xml": {
-    "prefixes": [
+    "suffixes": [
       ".atom"
     ],
     "headers": {
@@ -260,7 +260,7 @@
     "cache_threshold": null
   },
   "application/pgp-signature": {
-    "prefixes": [
+    "suffixes": [
       ".sig"
     ],
     "headers": {
@@ -270,7 +270,7 @@
     "cache_threshold": null
   },
   "application/x-protobuf": {
-    "prefixes": [
+    "suffixes": [
       ".pbf"
     ],
     "headers": {
@@ -280,7 +280,7 @@
     "cache_threshold": "2mb"
   },
   "application/octet-stream": {
-    "prefixes": [
+    "suffixes": [
       ".bin"
     ],
     "headers": {
@@ -290,7 +290,7 @@
     "cache_threshold": "2mb"
   },
   "application/zip": {
-    "prefixes": [
+    "suffixes": [
       ".zip"
     ],
     "headers": {
@@ -300,7 +300,7 @@
     "cache_threshold": "2mb"
   },
   "application/epub+zip": {
-    "prefixes": [
+    "suffixes": [
       ".xml", ".xsd"
     ],
     "headers": {
@@ -310,7 +310,7 @@
     "cache_threshold": "2mb"
   },
   "application/pdf": {
-    "prefixes": [
+    "suffixes": [
       ".pdf"
     ],
     "headers": {
@@ -320,7 +320,7 @@
     "cache_threshold": null
   },
   "audio/mp3": {
-    "prefixes": [
+    "suffixes": [
       ".mp3"
     ],
     "headers": {
@@ -330,7 +330,7 @@
     "cache_threshold": "2mb"
   },
   "audio/aac": {
-    "prefixes": [
+    "suffixes": [
       ".aac"
     ],
     "headers": {
@@ -340,7 +340,7 @@
     "cache_threshold": "2mb"
   },
   "audio/x-wav": {
-    "prefixes": [
+    "suffixes": [
       ".wav"
     ],
     "headers": {
@@ -350,7 +350,7 @@
     "cache_threshold": "2mb"
   },
   "video/mp4": {
-    "prefixes": [
+    "suffixes": [
       ".mp4"
     ],
     "headers": {
@@ -360,7 +360,7 @@
     "cache_threshold": "2mb"
   },
   "audio/webm": {
-    "prefixes": [
+    "suffixes": [
       ".webm"
     ],
     "headers": {
@@ -370,7 +370,7 @@
     "cache_threshold": "2mb"
   },
   "image/tiff": {
-    "prefixes": [
+    "suffixes": [
       ".tif", ".tiff", ".geotif", ".geotiff"
     ],
     "headers": {

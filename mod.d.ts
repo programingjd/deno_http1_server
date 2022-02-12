@@ -40,7 +40,8 @@ declare module server {
   type Uint8ArrayAsyncFunction=()=>Promise<Uint8Array>;
   interface CacheValue {
     headers: Headers,
-    body?: Uint8Array|Uint8ArrayAsyncFunction
+    body?: Uint8Array|Uint8ArrayAsyncFunction,
+    status?: number
   }
   interface ErrorObject {
     keyword: string

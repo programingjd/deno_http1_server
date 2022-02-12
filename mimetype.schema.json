@@ -5,7 +5,7 @@
   "description": "File type config for files of a specific mime type",
   "type": "object",
   "properties": {
-    "prefixes": {
+    "suffixes": {
       "description": "A list of file prefixes that identifies files of this mime type.",
       "type": "array",
       "items": {
@@ -52,6 +52,6 @@
       ]
     }
   },
-  "required": [ "prefixes", "compress", "cache_threshold" ],
+  "required": [ "suffixes", "compress", "cache_threshold" ],
   "additionalProperties": false
 }

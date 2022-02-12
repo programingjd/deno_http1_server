@@ -4,10 +4,21 @@
     "endpoints.mjs"
   ],
   "static": {
-    "path": "/test",
+    "path": "/example",
     "domain": "www.test.local",
     "excludes": [
       "endpoints.mjs"
-    ]
+    ],
+    "mime_types": {
+      "text/html": {
+        "suffixes": [ "html" ],
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "public,no-cache"
+        },
+        "cache_threshold": null,
+        "compress": true
+      }
+    }
   }
 }

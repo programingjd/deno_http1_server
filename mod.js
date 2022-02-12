@@ -34,6 +34,14 @@ const {validateDirectoryConfig_,validateMimeTypes_}=await(async()=>{
   }
 })();
 
+/** @type {CacheValue} */
+const methodNotAllowed={
+  headers: new Headers([
+    ['allow','GET, HEAD']
+  ]),
+  status: 405
+};
+
 /**
  * @param {Deno.RequestEvent} requestEvent
  * @param {URL} url
@@ -46,7 +54,6 @@ const handle=async(requestEvent,url,endpoints)=>{
       try{
         const accepted=await endpoint.accept(requestEvent.request,url);
         if(accepted!==null){
-          console.debug(`Request accepted.`);
           try{
             return requestEvent.respondWith(await endpoint.handle(accepted));
           }catch(err){
@@ -172,7 +179,7 @@ const serve=async(options)=>{
    * @returns {string}
    */
   function sanitizePath(path){
-    path=path||'/';
+    path=(path||'/').replace('./','');
     if(!path.startsWith('/')) path=`/${path}`;
     path=path.replace(/\/{2,}/g,'/');
     if(path.endsWith('/')) path=path.substring(0,path.length-1);
@@ -180,14 +187,16 @@ const serve=async(options)=>{
   }
 
   /**
+   * @param {string} dir
    * @param {string} path
    * @param {string} prefix
-   * @param {Object<string,string>} staticHeaders
+   * @param {Object<string,string>} headers
    * @param {MimeTypes} mimes
+   * @param {Set<string>} excludes
    * @param {Map<string,CacheValue>} cache
    * @returns {Promise<void>}
    */
-  async function walk(path,prefix,staticHeaders,mimes,cache){
+  async function walk(path,prefix,headers,mimes,excludes,cache){
     /** @type [[string,MimeTypeConfig]] */
     const mimeEntries=Object.entries(mimes);
     for await(const it of Deno.readDir(path)){
@@ -198,6 +207,7 @@ const serve=async(options)=>{
         );
         if(mimeEntry){
           let filename=`${path}/${name}`;
+          if(excludes.has(filename)) continue;
           let pathname;
           if(it.name==='index.html'){
             pathname=prefix===''?'':`${prefix}/`;
@@ -205,11 +215,11 @@ const serve=async(options)=>{
             cache.set(
               redir,
               {
-                headers:new Headers([
-                  ...headers,
-                  ...staticHeaders,
-                  ['location',redir]
-                ])
+                headers:new Headers(Object.fromEntries([
+                  ...Object.entries(headers),
+                  ['location',pathname]
+                ])),
+                status: 301
               }
             );
           }else pathname=`${prefix}/${name}`;
@@ -219,17 +229,21 @@ const serve=async(options)=>{
           cache.set(
             pathname,
             {
-              headers:new Headers([
-                ...headers,
-                ...staticHeaders,
-                ...mimeHeaders,
+              headers:new Headers(Object.fromEntries([
+                ...Object.entries(headers),
+                ['Content-Type',mimeEntry[0]],
+                ['Content-Length',body.byteLength],
+                ...Object.entries(mimeEntry[1].headers||{}),
                 ['ETag',etag],
-              ])
+              ])),
+              body
             }
           );
+          console.log(yellow(pathname));
         }
       }else if(it.isDirectory){
-        await walk(`${path}/${name}`,`${prefix}/${name}`,staticHeaders,mimes,cache);
+        const filename=`${path}/${name}`;
+        if(!excludes.has(filename)) await walk(filename,`${prefix}/${name}`,headers,mimes,cache);
       }
     }
   }
@@ -245,8 +259,41 @@ const serve=async(options)=>{
     /** @type {Map<string,CacheValue>} */
     const cache=new Map();
     const path=sanitizePath(config.path);
-    const mimes=Object.assign({...mimes},config.mime_types||{});
-    await walk(dir,path,headers,mimes,cache);
+    await walk(
+      dir,
+      path,
+      Object.assign({...defaultHeaders},config.headers||{}),
+      Object.assign({...defaultMimes},config.mime_types||{}),
+      new Set([
+        `${dir}/directory.json`,
+        (config.excludes||[]).map(it=>sanitizePath(`${dir}/${it}`).replace(/^\//,''))
+      ]),
+      cache
+    );
+    return {
+      accept:(request, url)=>{
+        const entry=cache.get(url.pathname);
+        if(!entry) return null;
+        if(request.method==='HEAD'||request.method==='GET'){
+          if(entry.status) return entry;
+          const ifNoneMatch=request.headers.get('if-none-match');
+          const etag=entry.headers.get('etag');
+          const status=etag===ifNoneMatch?304:200;
+          if(status===200&&request.method==='GET'){
+            return { headers: entry.headers, body: entry.body, status };
+          }else return { headers: entry.headers, status };
+        }else return methodNotAllowed;
+      },
+      handle:(value)=>{
+        return new Response(
+          value.body,
+          {
+            headers: value.headers,
+            status: value.status
+          }
+        );
+      }
+    };
   }
 
   /**
@@ -267,7 +314,7 @@ const serve=async(options)=>{
       };
       /** @type {[Endpoint<*>]} */
       const endpoints=[
-        staticEndpoint(dir,config.headers,config.static),
+        await staticEndpoint(dir,config.headers,config.static),
         ...(await Promise.all(config.endpoints?.map(mod=>load(mod))||[])).flat(1)
       ].filter(it=>it);
       return {
