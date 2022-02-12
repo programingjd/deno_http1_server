@@ -46,6 +46,7 @@ const methodNotAllowed={
  * @param {Deno.RequestEvent} requestEvent
  * @param {URL} url
  * @param {?[Endpoint<*>]} endpoints
+ * @param {Object<string,string>} headers
  * @return {Promise<void>}
  */
 const handle=async(requestEvent,url,endpoints)=>{
@@ -259,11 +260,13 @@ const serve=async(options)=>{
     /** @type {Map<string,CacheValue>} */
     const cache=new Map();
     const path=sanitizePath(config.path);
+    const mergedHeaders=Object.assign({...defaultHeaders},config.headers||{});
+    const mergedMimes=Object.assign({...defaultMimes},config.mime_types||{});
     await walk(
       dir,
       path,
-      Object.assign({...defaultHeaders},config.headers||{}),
-      Object.assign({...defaultMimes},config.mime_types||{}),
+      mergedHeaders,
+      mergedMimes,
       new Set([
         `${dir}/directory.json`,
         (config.excludes||[]).map(it=>sanitizePath(`${dir}/${it}`).replace(/^\//,''))
@@ -271,9 +274,19 @@ const serve=async(options)=>{
       cache
     );
     return {
-      accept:(request, url)=>{
+      accept: async(request, url)=>{
         const entry=cache.get(url.pathname);
         if(!entry) return null;
+        if(url.hostname!==config.domain){
+          const location=new URL(url);
+          location.hostname=config.domain;
+          const redirectHeaders=new Headers(mergedHeaders);
+          redirectHeaders.set('location',location.toString());
+          return {
+            headers: redirectHeaders,
+            status: 301
+          };
+        }
         if(request.method==='HEAD'||request.method==='GET'){
           if(entry.status) return entry;
           const ifNoneMatch=request.headers.get('if-none-match');
@@ -284,7 +297,7 @@ const serve=async(options)=>{
           }else return { headers: entry.headers, status };
         }else return methodNotAllowed;
       },
-      handle:(value)=>{
+      handle: async(value)=>{
         return new Response(
           value.body,
           {
@@ -294,6 +307,28 @@ const serve=async(options)=>{
         );
       }
     };
+  }
+
+  /**
+   * @param {DirectoryName} dir
+   * @param {Object<string,string>} headers
+   * @param {?[string]} modules
+   * @returns {Promise<[Endpoint<*>]>}
+   */
+  async function dynamicEndpoints(dir,headers,modules){
+    if(modules&&modules.length>0){
+      const additionalHeaders=Object.assign({...defaultHeaders},headers||{});
+      return (await Promise.all(modules.map(mod=>import(`./${sanitizePath(`${dir}/${mod}`)}`)))).
+        map(it=>it.default).
+        flat(1).
+        map(it=>{
+          return {
+            accept: it.accept,
+            handle: async(accepted)=>await it.handle(accepted,additionalHeaders)
+          };
+        });
+    }
+    return [];
   }
 
   /**
@@ -315,7 +350,7 @@ const serve=async(options)=>{
       /** @type {[Endpoint<*>]} */
       const endpoints=[
         await staticEndpoint(dir,config.headers,config.static),
-        ...(await Promise.all(config.endpoints?.map(mod=>load(mod))||[])).flat(1)
+        ...await dynamicEndpoints(dir,config.headers,config.endpoints)
       ].filter(it=>it);
       return {
         directory: dir,

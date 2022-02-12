@@ -2,29 +2,35 @@
  * @type {[Endpoint<*>]}
  */
 const endpoints=[
-  /** @type {Endpoint<boolean>} */
+  /** @type {Endpoint<{Request,URL}>} */
   {
     accept:(request, url)=>{
-      if(url.pathname!=='/test') return null;
-      return url.hostname!=='www.test.local';
+      if(url.pathname!=='/example/endpoint') return null;
+      return {request,url};
     },
-    handle:(redir)=>{
-      if(redir) return new Response(
-        null,
-        {
-          status: 301,
-          headers: {
-            location:'http://www.test.local/test'
+    handle:({request,url},headers)=>{
+      if(url.hostname!=='www.test.local'){
+        return new Response(
+          null,
+          {
+            status:301,
+            headers:{
+              location:'http://www.test.local/example/endpoint',
+              'access-control-allow-origin': request.headers.get('origin')
+            }
           }
-        }
-      );
+        );
+      }
       return new Response(
         null, //new TextEncoder().encode('Test endpoint response body.'),
         {
           status: 200,
-          headers: {
-            'x-test': 'true'
-          }
+          headers: new Headers([
+            ...Object.entries(headers),
+            [ 'x-test', 'true' ],
+            [ 'access-control-allow-origin', request.headers.get('origin') ],
+            [ 'cache-control', 'no-store' ]
+          ])
         }
       );
     }

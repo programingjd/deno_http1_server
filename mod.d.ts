@@ -26,7 +26,7 @@ declare module server {
   export type DirectoryName = string;
   export interface Endpoint<T> {
     accept: (request: Request, url: URL) => Promise<T>
-    handle: (accepted: T) => Promise<Response>
+    handle: (accepted: T, headers?: Record<string,string>) => Promise<Response>
   }
   export type ServeOptions = Deno.ListenOptions & { transport?: 'tcp' }
   export type ServerOptions = ServeOptions & { signal?: AbortSignal }

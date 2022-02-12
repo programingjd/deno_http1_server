@@ -25,11 +25,11 @@ function test(){
   busy=true;
   (async()=>{
     try{
-      const response=await fetch('./endpoint');
+      const response=await fetch('./endpoint',{mode:'cors'});
       info.innerHTML=`
         <b>GET</b> /endpoint<br>
         <span style="color:${color(response.status)}">${response.status} ${response.statusText}</span><br>
-        ${[...response.headers].map(it=>`${it[0]}: ${it[1]}`).join('<br>\n')}
+        ${[...response.headers.entries()].map(it=>`${it[0]}: ${it[1]}`).join('<br>\n')}
         <br><br>
         <div></div>
       `;
