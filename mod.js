@@ -46,7 +46,6 @@ const methodNotAllowed={
  * @param {Deno.RequestEvent} requestEvent
  * @param {URL} url
  * @param {?[Endpoint<*>]} endpoints
- * @param {Object<string,string>} headers
  * @return {Promise<void>}
  */
 const handle=async(requestEvent,url,endpoints)=>{
@@ -188,7 +187,6 @@ const serve=async(options)=>{
   }
 
   /**
-   * @param {string} dir
    * @param {string} path
    * @param {string} prefix
    * @param {Object<string,string>} headers
@@ -203,6 +201,7 @@ const serve=async(options)=>{
     for await(const it of Deno.readDir(path)){
       const name=it.name;
       if(it.isFile){
+        // noinspection JSCheckFunctionSignatures
         const mimeEntry=mimeEntries.find(
           ([,value])=>value.suffixes.find(suffix=>name.endsWith(suffix))
         );
@@ -225,7 +224,9 @@ const serve=async(options)=>{
             );
           }else pathname=`${prefix}/${name}`;
           const stat=await Deno.stat(filename);
-          const body=await Deno.readFile(filename);
+          const compress=mimeEntry[1].compress;
+          const body=compress?await Deno.readFile(filename):
+                     ()=>Deno.open(filename,{read:true});
           const etag=`${stat.mtime.getTime().toString(16)}:${stat.size.toString(16)}`;
           cache.set(
             pathname,
@@ -233,7 +234,7 @@ const serve=async(options)=>{
               headers:new Headers(Object.fromEntries([
                 ...Object.entries(headers),
                 ['Content-Type',mimeEntry[0]],
-                ['Content-Length',body.byteLength],
+                ['Content-Length',stat.size],
                 ...Object.entries(mimeEntry[1].headers||{}),
                 ['ETag',etag],
               ])),
@@ -244,7 +245,9 @@ const serve=async(options)=>{
         }
       }else if(it.isDirectory){
         const filename=`${path}/${name}`;
-        if(!excludes.has(filename)) await walk(filename,`${prefix}/${name}`,headers,mimes,cache);
+        if(!excludes.has(filename)){
+          await walk(filename,`${prefix}/${name}`,headers,mimes,excludes,cache);
+        }
       }
     }
   }
@@ -260,6 +263,8 @@ const serve=async(options)=>{
     /** @type {Map<string,CacheValue>} */
     const cache=new Map();
     const path=sanitizePath(config.path);
+    // noinspection JSValidateTypes
+    /** @type {Object<string,string>} **/
     const mergedHeaders=Object.assign({...defaultHeaders},config.headers||{});
     const mergedMimes=Object.assign({...defaultMimes},config.mime_types||{});
     await walk(
@@ -298,8 +303,9 @@ const serve=async(options)=>{
         }else return methodNotAllowed;
       },
       handle: async(value)=>{
+        const body=typeof value.body==='function'?await value.body():value.body;
         return new Response(
-          value.body,
+          body,
           {
             headers: value.headers,
             status: value.status
@@ -340,13 +346,6 @@ const serve=async(options)=>{
       console.log(bold(`${magenta('Directory')}: ${dir}`));
       const mod=await import(`./${dir}/directory.json`,{assert:{type:'json'}});
       const config=validateDirectoryConfig(mod.default);
-      /**
-       * @param {string} mod
-       * @return {Promise<[Endpoint<*>]>}
-       */
-      const load=async(mod)=>{
-        return [(await import(`./${dir}/${mod}`)).default].flat(1);
-      };
       /** @type {[Endpoint<*>]} */
       const endpoints=[
         await staticEndpoint(dir,config.headers,config.static),
