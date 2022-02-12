@@ -1,4 +1,5 @@
 import {magenta,yellow,bold} from 'https://deno.land/std/fmt/colors.ts';
+import {readableStreamFromReader} from 'https://deno.land/std/io/mod.ts';
 
 /** @type {Set<DomainName>} */
 const localDomains=new Set([
@@ -66,7 +67,7 @@ const handle=async(requestEvent,url,endpoints)=>{
       }
     }
   }
-  return requestEvent.respondWith(new Response(null,{status:404}));
+  return await requestEvent.respondWith(new Response(null,{status:404}));
 }
 
 /**
@@ -187,6 +188,23 @@ const serve=async(options)=>{
   }
 
   /**
+   * @param {number|string|null} threshold
+   * @returns {?number}
+   */
+  function threshold(threshold){
+    if(threshold===null) return null;
+    if(typeof threshold==='number') return threshold;
+    const match=/^([0-9]+.)([kmg]?)b$/.exec(threshold.toString());
+    if(!match) throw new Error(`Invalid cache threshold value: ${threshold}`);
+    let multiplier=1;
+    const unit=match[2];
+    if(unit==='k') multiplier=1024;
+    if(unit==='m') multiplier=1024*1024;
+    if(unit==='g') multiplier=1024*1024*1024;
+    return parseFloat(match[1])*multiplier;
+  }
+
+  /**
    * @param {string} path
    * @param {string} prefix
    * @param {Object<string,string>} headers
@@ -224,20 +242,36 @@ const serve=async(options)=>{
             );
           }else pathname=`${prefix}/${name}`;
           const stat=await Deno.stat(filename);
-          const compress=mimeEntry[1].compress;
-          const body=compress?await Deno.readFile(filename):
-                     ()=>Deno.open(filename,{read:true});
-          const etag=`${stat.mtime.getTime().toString(16)}:${stat.size.toString(16)}`;
+          const cacheThreshold=threshold(mimeEntry[1].cache_threshold);
+          const contentLength=stat.size
+          const cacheBody=cacheThreshold===null||contentLength<=cacheThreshold;
+          const compress=cacheBody&&mimeEntry[1].compress;
+          const etag=`${stat.mtime.getTime().toString(16)}:${contentLength.toString(16)}`;
+          const cacheHeaders=new Headers(Object.fromEntries([
+            ...Object.entries(headers),
+            ['Content-Type',mimeEntry[0]],
+            ['Content-Length',contentLength],
+            ...Object.entries(mimeEntry[1].headers||{}),
+            ['ETag',etag],
+          ]));
+          let body;
+          if(cacheBody){
+            body=await Deno.readFile(filename);
+            if(compress){
+              // TODO
+            }
+          }else{
+            body=async()=>{
+              const file=await Deno.open(filename,{read:true});
+              const stat=await file.stat();
+              if(stat.size!==contentLength) throw new Error('File changed.');
+              return readableStreamFromReader(file);
+            }
+          }
           cache.set(
             pathname,
             {
-              headers:new Headers(Object.fromEntries([
-                ...Object.entries(headers),
-                ['Content-Type',mimeEntry[0]],
-                ['Content-Length',stat.size],
-                ...Object.entries(mimeEntry[1].headers||{}),
-                ['ETag',etag],
-              ])),
+              headers: cacheHeaders,
               body
             }
           );
@@ -421,7 +455,7 @@ const serve=async(options)=>{
           const url=new URL(requestEvent.request.url);
           const hostname=url.hostname;
           // noinspection ES6MissingAwait
-          handle(requestEvent,url,state.get(hostname)?.endpoints);
+          await handle(requestEvent,url,state.get(hostname)?.endpoints);
         }catch(err){
           console.warn(err);
         }

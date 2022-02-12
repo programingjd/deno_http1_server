@@ -33,3 +33,12 @@ info.active{
   opacity:100;
   pointer-events:auto;
 }
+video{
+  position:absolute;
+  top:calc(100vh - 2em);
+  margin:auto;
+  padding:1em;
+  width:75vw;
+  height:auto;
+  cursor:pointer;
+}

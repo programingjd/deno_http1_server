@@ -9,7 +9,12 @@
 <img src="deno.svg">
 <h1><a href="javascript:test()">Test</a> page for Deno Http1 Server</h1>
 <info></info>
+<video loop>
+  <source src="test.webm" type="video/webm">
+</video>
 <script>
+const video=document.querySelector('video');
+video.addEventListener('click',_=>video.paused?video.play():video.pause());
 const info=document.querySelector('info');
 document.addEventListener('click',_=>info.classList.remove('active'));
 let busy=false;
