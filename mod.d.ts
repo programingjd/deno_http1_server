@@ -41,7 +41,8 @@ declare module server {
   interface CacheValue {
     headers: Headers,
     body?: Uint8Array|Uint8ArrayAsyncFunction,
-    status?: number
+    status?: number,
+    compressed?: boolean
   }
   interface ErrorObject {
     keyword: string

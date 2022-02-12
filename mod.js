@@ -1,5 +1,6 @@
 import {magenta,yellow,bold} from 'https://deno.land/std/fmt/colors.ts';
 import {readableStreamFromReader} from 'https://deno.land/std/io/mod.ts';
+import {compress as br} from 'https://deno.land/x/brotli/mod.ts';
 
 /** @type {Set<DomainName>} */
 const localDomains=new Set([
@@ -243,14 +244,13 @@ const serve=async(options)=>{
           }else pathname=`${prefix}/${name}`;
           const stat=await Deno.stat(filename);
           const cacheThreshold=threshold(mimeEntry[1].cache_threshold);
-          const contentLength=stat.size
-          const cacheBody=cacheThreshold===null||contentLength<=cacheThreshold;
+          const filesize=stat.size
+          const cacheBody=cacheThreshold===null||filesize<=cacheThreshold;
           const compress=cacheBody&&mimeEntry[1].compress;
-          const etag=`${stat.mtime.getTime().toString(16)}:${contentLength.toString(16)}`;
+          const etag=`${stat.mtime.getTime().toString(16)}:${filesize.toString(16)}`;
           const cacheHeaders=new Headers(Object.fromEntries([
             ...Object.entries(headers),
             ['Content-Type',mimeEntry[0]],
-            ['Content-Length',contentLength],
             ...Object.entries(mimeEntry[1].headers||{}),
             ['ETag',etag],
           ]));
@@ -258,15 +258,18 @@ const serve=async(options)=>{
           if(cacheBody){
             body=await Deno.readFile(filename);
             if(compress){
-              // TODO
+              body=await br(body);
             }
+            cacheHeaders.set('content-length',body.byteLength.toString());
+            cacheHeaders.set('content-encoding','br');
           }else{
             body=async()=>{
               const file=await Deno.open(filename,{read:true});
               const stat=await file.stat();
-              if(stat.size!==contentLength) throw new Error('File changed.');
+              if(stat.size!==filesize) throw new Error('File changed.');
               return readableStreamFromReader(file);
             }
+            cacheHeaders.set('content-length',filesize.toString());
           }
           cache.set(
             pathname,
@@ -275,7 +278,8 @@ const serve=async(options)=>{
               body
             }
           );
-          console.log(yellow(pathname));
+          console.log(yellow(`${pathname.padEnd(100)}   ${filesize.toString().padStart(12)}`+
+                             `   ${(body.byteLength||filesize).toString().padStart(12)}`));
         }
       }else if(it.isDirectory){
         const filename=`${path}/${name}`;
@@ -328,6 +332,7 @@ const serve=async(options)=>{
         }
         if(request.method==='HEAD'||request.method==='GET'){
           if(entry.status) return entry;
+          // we don't check for accept-encoding br because browsers don't include it with http.
           const ifNoneMatch=request.headers.get('if-none-match');
           const etag=entry.headers.get('etag');
           const status=etag===ifNoneMatch?304:200;
