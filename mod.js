@@ -451,7 +451,7 @@ const serve=async(options)=>{
   const server=Deno.listen(options);
   // noinspection HttpUrlsUsage
   console.log(bold(`Listening on http://${address(options)}.`));
-  signal.addEventListener('abort',()=>server.close());
+  signal?.addEventListener('abort',()=>server.close());
   /**
    * @param {Deno.HttpConn} requests
    * @returns {Promise<void>}
