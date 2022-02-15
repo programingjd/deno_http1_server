@@ -1,4 +1,4 @@
-import {serve} from './mod.js';
+import {serve} from 'https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mod.js';
 
 let host=null;
 let port=null;
