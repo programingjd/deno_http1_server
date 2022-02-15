@@ -6,11 +6,59 @@ This server is supposed to be behind another server that handles HTTPS and the T
 
 This can be a CDN like [cloudflare](https://www.cloudflare.com/) and/or another server like [nginx](https://www.nginx.com/) or [caddy](https://caddyserver.com/).
 
+File contents are pre-compressed and preloaded into memory (unless the configuration files specifies not to). The compression is using [brotli](https://en.wikipedia.org/wiki/Brotli) compression because it's now available in all mainstream browsers and tools.<br>
+Unfortunately, browsers [don't support brotli compression with http (non-https)](https://stackoverflow.com/a/43862563/10498513). This means that you can't test it directly in the browser unless you do have that additional server in front. The [example](#example) includes a caddy configuration to do that.
+
 ## <a id="file_structure">File structure</a>
 
-The server will scan the current directory looking for subdirectories (direct children) containing a `directory.json` config file (direct child).
+The server will scan the current directory looking for subdirectories (direct children) containing a `directory.json` config file (direct child of that subdirectory).
+
+## <a id="update_endpoints">Update endpoints</a>
+
+The server uses a cache that is built on startup.
+There are two endpoints to update the cache:
+  - `/update`  updates everything by reloading all configurations the same way as during startup.
+  - `/update/${directory}` updates the specified directory only (this can also be used to add a new directory).
+
+These endpoints are only available from localhost.
+If you need to call them from somewhere else, you need to add custom endpoints and forward the calls. This can be useful to set up git webhooks and keep the server up to date after commits. Look at the example for details on how to implement those.
+
+## <a id="usage">How to use</a>
+
+```javascript
+import {serve} from 'https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mod.js';
+
+await serve({hostname,port});
+```
+
+See the full [documentation](https://doc.deno.land/https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mod.d.ts) for additional options and details.
+
+## <a id="example">Example</a>
+
+The example has a [directory](example) `example` that holds the configuration for serving content for the `test.local` and `www.test.local` domains.<br>
+It serves the static files under that directory except two files:
+  - [directory.json](example/directory.json) the configuration file iteself
+  - [endpoint.mjs](example/endpoints.mjs) the implementation of custom endpoints
+
+It also has two custom endpoints, implemented in [endpoint.mjs](example/endpoints.mjs):
+  - `/example/endpoint`
+  - `/update_webhook`
+
+There's also a caddy configuration for that example in [caddy/caddy.json](caddy/caddy.json).
+For testing locally, you need to modify your [hosts](https://en.wikipedia.org/wiki/Hosts_(file)) file to have `test.local` and `www.test.local` point to `127.0.0.1`.
+
+The example server can be started with [index.mjs](index.mjs):
+`deno run -A index.js`
+
+Once the server and caddy are running, you can point your browser (or curl) to
+[https://test.local/example](https://test.local/example).
 
 ## <a id="directory_config_files">directory.json config files</a>
+
+A JSON Schema is available to validate the directory.json files:
+[directory.schema.json](https://raw.githubusercontent.com/programingjd/deno_http1_server/main/directory.schema.json)
+
+The server uses the same schema to validate the configuration files.
 
 ```json
 {
@@ -147,11 +195,3 @@ Example configuration:
 ```
 
 The list of default types is [here](mimes.json).
-
-
-## <a id="json_validation">JSON validation</a>
-
-A Draft 2020-20 JSON Schema is available to validate the directory.json files:
-  `directory.schema.json`
-
-The server uses the same schema to validate the configuration files.

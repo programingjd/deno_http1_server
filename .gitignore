@@ -3,3 +3,6 @@
 validators/package-lock.json
 validators/node_modules/
 validators/validator.js
+caddy/caddy.linux
+caddy/caddy.exe
+caddy/storage/

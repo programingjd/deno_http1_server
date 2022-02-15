@@ -325,12 +325,15 @@ const serve=async(options)=>{
           location.hostname=config.domain;
           const redirectHeaders=new Headers(mergedHeaders);
           redirectHeaders.set('location',location.toString());
-          return {
-            headers: redirectHeaders,
-            status: 301
-          };
+          return { headers: redirectHeaders, status: 301 };
         }
         if(request.method==='HEAD'||request.method==='GET'){
+          if(entry.compressed){
+            const encodings=request.headers.get('accept-encoding');
+            if(!encodings||encodings.indexOf('br')=== -1){
+              return {headers:new Headers(mergedHeaders),status:406};
+            }
+          }
           if(entry.status) return entry;
           // we don't check for accept-encoding br because browsers don't include it with http.
           const ifNoneMatch=request.headers.get('if-none-match');

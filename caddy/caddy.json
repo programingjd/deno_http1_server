@@ -1,0 +1,123 @@
+{
+  "admin": {
+    "origins": [
+      "localhost",
+      "127.0.0.1",
+      "::1"
+    ],
+    "enforce_origin": true
+  },
+  "logging": {
+    "sink": {
+      "writer": {
+        "output": "stdout"
+      }
+    },
+    "logs": {
+      "default": {
+        "level": "debug"
+      }
+    }
+  },
+  "storage": {
+    "module": "file_system",
+    "root": "./storage"
+  },
+  "apps": {
+    "pki": {
+      "certificate_authorities": {
+        "local": {
+          "install_trust": false
+        }
+      }
+    },
+    "tls": {
+      "certificates": {
+        "automate": [
+          "localhost",
+          "127.0.0.1",
+          "::1",
+          "test.local",
+          "www.test.local"
+        ]
+      },
+      "automation": {
+        "renew_interval": "3d",
+        "policies": [
+          {
+            "subjects": [
+              "localhost",
+              "127.0.0.1",
+              "::1",
+              "test.local",
+              "www.test.local"
+            ],
+            "renewal_window_ratio": 0.75,
+            "key_type": "p384",
+            "disable_ocsp_stapling": true,
+            "issuers": [
+              {
+                "module": "internal"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "http": {
+      "grace_period": "300ms",
+      "servers": {
+        "reverse_proxy": {
+          "listen": [
+            ":443"
+          ],
+          "idle_timeout": "5m",
+          "read_timeout": "90s",
+          "read_header_timeout": "10s",
+          "write_timeout": "30s",
+          "max_header_bytes": 16384,
+          "allow_h2c": false,
+          "strict_sni_host": true,
+          "experimental_http3": true,
+          "tls_connection_policies": [
+            {
+              "alpn": [
+                "h3",
+                "h3-29",
+                "h2",
+                "http/1.1"
+              ],
+              "protocol_min": "tls1.3"
+            }
+          ],
+          "routes": [
+            {
+              "handle": [
+                {
+                  "handler": "reverse_proxy",
+                  "headers": {
+                    "response": {
+                      "delete": [
+                        "server"
+                      ]
+                    }
+                  },
+                  "upstreams": [
+                    {
+                      "dial": "localhost:8080",
+                      "max_requests": 100
+                    }
+                  ],
+                  "transport": {
+                    "protocol": "http"
+                  }
+                }
+              ],
+              "terminal": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}
