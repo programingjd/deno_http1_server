@@ -1,5 +1,6 @@
 import {magenta,yellow,bold} from 'https://deno.land/std/fmt/colors.ts';
 import {readableStreamFromReader} from 'https://deno.land/std/io/mod.ts';
+import {toFileUrl,fromFileUrl} from 'https://deno.land/std/path/mod.ts';
 import {compress as br} from 'https://deno.land/x/brotli/mod.ts';
 
 /** @type {Set<DomainName>} */
@@ -8,6 +9,8 @@ const localDomains=new Set([
   '127.0.0.1',
   '::1'
 ]);
+
+const cwd=Deno.cwd();
 
 /**
  * @param {ServerOptions} options
@@ -217,7 +220,7 @@ const serve=async(options)=>{
   async function walk(path,prefix,headers,mimes,excludes,cache){
     /** @type [[string,MimeTypeConfig]] */
     const mimeEntries=Object.entries(mimes);
-    for await(const it of Deno.readDir(path)){
+    for await(const it of Deno.readDir(`${cwd}/${path}`)){
       const name=it.name;
       if(it.isFile){
         // noinspection JSCheckFunctionSignatures
@@ -225,7 +228,7 @@ const serve=async(options)=>{
           ([,value])=>value.suffixes.find(suffix=>name.endsWith(suffix))
         );
         if(mimeEntry){
-          let filename=`${path}/${name}`;
+          let filename=`/${path}/${name}`;
           if(excludes.has(filename)) continue;
           let pathname;
           if(it.name==='index.html'){
@@ -242,7 +245,7 @@ const serve=async(options)=>{
               }
             );
           }else pathname=`${prefix}/${name}`;
-          const stat=await Deno.stat(filename);
+          const stat=await Deno.stat(`${cwd}${filename}`);
           const cacheThreshold=threshold(mimeEntry[1].cache_threshold);
           const filesize=stat.size
           const cacheBody=cacheThreshold===null||filesize<=cacheThreshold;
@@ -256,7 +259,7 @@ const serve=async(options)=>{
           ]));
           let body;
           if(cacheBody){
-            body=await Deno.readFile(filename);
+            body=await Deno.readFile(`${cwd}${filename}`);
             if(compress){
               body=await br(body);
             }
@@ -264,7 +267,7 @@ const serve=async(options)=>{
             cacheHeaders.set('content-encoding','br');
           }else{
             body=async()=>{
-              const file=await Deno.open(filename,{read:true});
+              const file=await Deno.open(`${cwd}${filename}`,{read:true});
               const stat=await file.stat();
               if(stat.size!==filesize) throw new Error('File changed.');
               return readableStreamFromReader(file);
@@ -311,8 +314,8 @@ const serve=async(options)=>{
       mergedHeaders,
       mergedMimes,
       new Set([
-        `${dir}/directory.json`,
-        (config.excludes||[]).map(it=>sanitizePath(`${dir}/${it}`).replace(/^\//,''))
+        `/${dir}/directory.json`,
+      ...(config.excludes||[]).map(it=>sanitizePath(`${dir}/${it}`))
       ]),
       cache
     );
@@ -366,7 +369,12 @@ const serve=async(options)=>{
   async function dynamicEndpoints(dir,headers,modules){
     if(modules&&modules.length>0){
       const additionalHeaders=Object.assign({...defaultHeaders},headers||{});
-      return (await Promise.all(modules.map(mod=>import(`./${sanitizePath(`${dir}/${mod}`)}`)))).
+      const importMod=mod=>{
+        const url=toFileUrl(cwd);
+        url.pathname+=sanitizePath(`${dir}/${mod}`);
+        return import(url);
+      };
+      return (await Promise.all(modules.map(importMod))).
         map(it=>it.default).
         flat(1).
         map(it=>{
@@ -386,7 +394,9 @@ const serve=async(options)=>{
   async function updateDirectoryState(dir){
     try{
       console.log(bold(`${magenta('Directory')}: ${dir}`));
-      const mod=await import(`./${dir}/directory.json`,{assert:{type:'json'}});
+      const url=toFileUrl(cwd);
+      url.pathname+=`/${dir}/directory.json`;
+      const mod=await import(url,{assert:{type:'json'}});
       const config=validateDirectoryConfig(mod.default);
       /** @type {[Endpoint<*>]} */
       const endpoints=[
@@ -429,7 +439,7 @@ const serve=async(options)=>{
     for(const domain of localDomains){
       state.set(domain,localEndpoints);
     }
-    for await(const it of Deno.readDir('.')){
+    for await(const it of Deno.readDir(cwd)){
       if(it.isDirectory){
         if(it.name.charAt(0)==='.') continue;
         if(await hasConfig(it.name)){
