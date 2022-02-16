@@ -1,6 +1,6 @@
 import {magenta,yellow,bold} from 'https://deno.land/std/fmt/colors.ts';
 import {readableStreamFromReader} from 'https://deno.land/std/io/mod.ts';
-import {toFileUrl,fromFileUrl} from 'https://deno.land/std/path/mod.ts';
+import {toFileUrl} from 'https://deno.land/std/path/mod.ts';
 import {compress as br} from 'https://deno.land/x/brotli/mod.ts';
 
 /** @type {Set<DomainName>} */
@@ -9,8 +9,6 @@ const localDomains=new Set([
   '127.0.0.1',
   '::1'
 ]);
-
-const cwd=Deno.cwd();
 
 /**
  * @param {ServerOptions} options
@@ -76,9 +74,10 @@ const handle=async(requestEvent,url,endpoints)=>{
 
 /**
  * @param {ServerOptions} options
+ * @param {string} [cwd=Deno.cwd()]
  * @return {Promise<void>}
  */
-const serve=async(options)=>{
+const serve=async(options, cwd=Deno.cwd())=>{
   const {signal=null}=options;
 
   let defaultHeaders=(await import('./headers.json',{assert:{type:'json'}})).default;
