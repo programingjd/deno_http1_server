@@ -26,9 +26,11 @@ If you need to call them from somewhere else, you need to add custom endpoints a
 ## <a id="usage">How to use</a>
 
 ```javascript
-import {serve} from 'https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mod.js';
+import {listen} from 'https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mod.js';
 
-await serve({hostname,port});
+const serve=await listen({hostname,port});
+// serve connections until server is stopped
+await serve();
 ```
 
 See the full [documentation](https://doc.deno.land/https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mod.d.ts) for additional options and details.

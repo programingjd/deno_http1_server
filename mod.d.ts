@@ -30,7 +30,7 @@ export interface Endpoint<T> {
 export type ServeOptions = Deno.ListenOptions & { transport?: 'tcp' }
 export type ServerOptions = ServeOptions & { signal?: AbortSignal }
 
-export function serve(options: ServerOptions,workingDirectory?: string):Promise<void>
+export function listen(options: ServerOptions,workingDirectory?: string):Promise<()=>Promise<void>>
 interface DirectoryEndpoints {
   directory: string,
   domains: DomainName[],

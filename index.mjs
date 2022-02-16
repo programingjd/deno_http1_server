@@ -1,4 +1,4 @@
-import {serve} from 'https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mod.js';
+import {listen} from 'https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mod.js';
 // import {serve} from './mod.js';
 
 let host=null;
@@ -22,4 +22,7 @@ const controller=new AbortController();
 //   controller.abort();
 // });
 // console.info('Press Ctrl-C to stop the server.');
-await serve({hostname:host||'0.0.0.0',port:port||8080,transport:'tcp',signal:controller.signal});
+const serve=await listen({
+  hostname:host||'0.0.0.0',port:port||8080,transport:'tcp',signal:controller.signal
+});
+await serve();

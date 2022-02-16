@@ -75,9 +75,9 @@ const handle=async(requestEvent,url,endpoints)=>{
 /**
  * @param {ServerOptions} options
  * @param {string} [cwd=Deno.cwd()]
- * @return {Promise<void>}
+ * @return {Promise<()=>Promise<void>>}
  */
-const serve=async(options, cwd=Deno.cwd())=>{
+const listen=async(options, cwd=Deno.cwd())=>{
   const {signal=null}=options;
 
   let defaultHeaders=(await import('./headers.json',{assert:{type:'json'}})).default;
@@ -460,7 +460,10 @@ const serve=async(options, cwd=Deno.cwd())=>{
   const server=Deno.listen(options);
   // noinspection HttpUrlsUsage
   console.log(bold(`Listening on http://${address(options)}.`));
-  signal?.addEventListener('abort',()=>server.close());
+  signal?.addEventListener('abort',()=>{
+    console.log('stopping server');
+    server.close();
+  });
   /**
    * @param {Deno.HttpConn} requests
    * @returns {Promise<void>}
@@ -482,18 +485,24 @@ const serve=async(options, cwd=Deno.cwd())=>{
       console.warn(err);
     }
   }
-  for await(const conn of server){
+  return async()=>{
     try{
-      // noinspection ES6MissingAwait
-      handleRequests(Deno.serveHttp(conn))
+      for await(const conn of server){
+        try{
+          // noinspection ES6MissingAwait
+          handleRequests(Deno.serveHttp(conn))
+        }catch(err){
+          console.warn(err);
+        }
+        if(signal?.aborted===true) break;
+      }
     }catch(err){
       console.warn(err);
     }
-    if(signal?.aborted===true) break;
+    console.log('server shutdown');
   }
-  await Deno.shutdown(server.rid);
 };
 
 export {
-  serve
+  listen
 }
