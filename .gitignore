@@ -6,3 +6,5 @@ validators/validator.js
 caddy/caddy.linux
 caddy/caddy.exe
 caddy/storage/
+example/test.txt
+testdata/

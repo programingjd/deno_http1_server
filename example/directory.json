@@ -14,7 +14,8 @@
         "suffixes": [ "html" ],
         "headers": {
           "content-type": "text/html; charset=utf-8",
-          "cache-control": "public,no-cache"
+          "cache-control": "public,no-cache",
+          "x-test": "test"
         },
         "cache_threshold": null,
         "compress": true

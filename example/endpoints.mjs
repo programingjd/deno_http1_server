@@ -27,6 +27,7 @@ const endpoints=[
           status: 200,
           headers: new Headers([
             ...Object.entries(headers),
+            [ 'content-type', 'text/plain' ],
             [ 'x-test', 'true' ],
             [ 'access-control-allow-origin', request.headers.get('origin') ],
             [ 'cache-control', 'no-store' ]

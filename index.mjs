@@ -1,5 +1,5 @@
-import {listen} from 'https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mod.js';
-// import {serve} from './mod.js';
+// import {listen} from 'https://raw.githubusercontent.com/programingjd/deno_http1_server/main/mod.js';
+import {listen} from './mod.js';
 
 let host=null;
 let port=null;

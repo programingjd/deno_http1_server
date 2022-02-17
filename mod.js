@@ -208,9 +208,25 @@ const listen=async(options, cwd=Deno.cwd())=>{
   }
 
   /**
+   * @param {...(Object<string,string>|Headers)} args
+   * @return {Headers}
+   */
+  function mergeHeaders(...args){
+    const map=new Map();
+    for(const headers of args){
+      if(headers){
+        for(const entry of headers instanceof Headers?headers.entries():Object.entries(headers)){
+          map.set(entry[0].toLowerCase(),entry[1]);
+        }
+      }
+    }
+    return new Headers([...map.entries()]);
+  }
+
+  /**
    * @param {string} path
    * @param {string} prefix
-   * @param {Object<string,string>} headers
+   * @param {Headers} headers
    * @param {MimeTypes} mimes
    * @param {Set<string>} excludes
    * @param {Map<string,CacheValue>} cache
@@ -236,10 +252,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
             cache.set(
               redir,
               {
-                headers:new Headers(Object.fromEntries([
-                  ...Object.entries(headers),
-                  ['location',pathname]
-                ])),
+                headers: mergeHeaders(headers,{location:pathname}),
                 status: 308
               }
             );
@@ -250,12 +263,11 @@ const listen=async(options, cwd=Deno.cwd())=>{
           const cacheBody=cacheThreshold===null||filesize<=cacheThreshold;
           const compress=cacheBody&&mimeEntry[1].compress;
           const etag=`${stat.mtime.getTime().toString(16)}:${filesize.toString(16)}`;
-          const cacheHeaders=new Headers(Object.fromEntries([
-            ...Object.entries(headers),
-            ['Content-Type',mimeEntry[0]],
-            ...Object.entries(mimeEntry[1].headers||{}),
-            ['ETag',etag],
-          ]));
+          const cacheHeaders=mergeHeaders(
+            headers,
+            {'content-type': mimeEntry[0],etag},
+            mimeEntry[1].headers,
+          );
           let body;
           if(cacheBody){
             body=await Deno.readFile(`${cwd}${filename}`);
@@ -304,8 +316,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
     const cache=new Map();
     const path=sanitizePath(config.path);
     // noinspection JSValidateTypes
-    /** @type {Object<string,string>} **/
-    const mergedHeaders=Object.assign({...defaultHeaders},config.headers||{});
+    const mergedHeaders=mergeHeaders(defaultHeaders,config.headers);
     const mergedMimes=Object.assign({...defaultMimes},config.mime_types||{});
     await walk(
       dir,
