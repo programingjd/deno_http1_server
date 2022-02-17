@@ -501,7 +501,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
       for await(const conn of server){
         try{
           // noinspection ES6MissingAwait
-          handleRequests(Deno.serveHttp(conn))
+          handleRequests(Deno.serveHttp(conn));
         }catch(err){
           console.warn(err);
         }

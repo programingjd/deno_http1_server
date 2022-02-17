@@ -64,6 +64,7 @@ const endpoints=[
       }
       const json=new TextDecoder().decode(body.buffer);
       if(json.ref==='refs/heads/main'){
+        // todo perform git pull or download repo archive
         const response=await fetch('http://localhost/update');
         await response.arrayBuffer();
         return { headers: new Headers({'cache-control':'no-cache'}), status: response.status };
