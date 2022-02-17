@@ -1,6 +1,6 @@
 
 import {listen} from './mod.js';
-import {assertEquals} from 'https://deno.land/std/testing/asserts.ts'
+import {assertEquals,assert} from 'https://deno.land/std/testing/asserts.ts'
 
 await Deno.test({
   name: 'server',
@@ -30,11 +30,39 @@ await Deno.test({
         sanitizeExit:false
       }),
       t.step({
-        name:'301 on test.local/example',
+        name:'308 on test.local/example',
         fn:async _=>{
-          const response=await fetch('http://test.local:8080/example');
-          assertEquals(response.status,404);
+          const response=await fetch('http://test.local:8080/example',{redirect:'manual'});
+          assertEquals(response.status,308);
+          assertEquals(response.headers.get('location'),'http://www.test.local:8080/example');
           assertEquals(await response.text(),'');
+        },
+        sanitizeOps:false,
+        sanitizeResources:false,
+        sanitizeExit:false
+      }),
+      t.step({
+        name:'308 on www.test.local/example',
+        fn:async _=>{
+          const response=await fetch('http://www.test.local:8080/example',{redirect:'manual'});
+          assertEquals(response.status,308);
+          assertEquals(response.headers.get('location'),'/example/');
+          assertEquals(await response.text(),'');
+        },
+        sanitizeOps:false,
+        sanitizeResources:false,
+        sanitizeExit:false
+      }),
+      t.step({
+        name:'200 on www.test.local/example/',
+        fn:async _=>{
+          const response=await fetch('http://www.test.local:8080/example/',{redirect:'manual'});
+          assertEquals(response.status,200);
+          assertEquals(response.headers.get('content-type'),'text/html; charset=utf-8');
+          assertEquals(response.headers.get('cache-control'),'public,no-cache');
+          assert(response.headers.get('etag'));
+          const text=await response.text();
+          assert(text.trim().endsWith('</html>'));
         },
         sanitizeOps:false,
         sanitizeResources:false,

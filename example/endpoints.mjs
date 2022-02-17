@@ -13,7 +13,7 @@ const endpoints=[
         return new Response(
           null,
           {
-            status:301,
+            status:308,
             headers:{
               location:'http://www.test.local/example/endpoint',
               'access-control-allow-origin': request.headers.get('origin')

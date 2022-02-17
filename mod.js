@@ -240,7 +240,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
                   ...Object.entries(headers),
                   ['location',pathname]
                 ])),
-                status: 301
+                status: 308
               }
             );
           }else pathname=`${prefix}/${name}`;
@@ -327,7 +327,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
           location.hostname=config.domain;
           const redirectHeaders=new Headers(mergedHeaders);
           redirectHeaders.set('location',location.toString());
-          return { headers: redirectHeaders, status: 301 };
+          return { headers: redirectHeaders, status: 308 };
         }
         if(request.method==='HEAD'||request.method==='GET'){
           if(entry.compressed){

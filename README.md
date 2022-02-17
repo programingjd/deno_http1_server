@@ -122,15 +122,15 @@ Static files are pre-compressed (with `brotli --best`) when applicable and prelo
 A redirect is used to remove the trailing slash for
 the domain root.
 
-`http://www.example.com/` redirects to `http://www.example.com` with a `301`.
+`http://www.example.com/` redirects to `http://www.example.com` with a `308`.
 
 For other directory urls, redirects are used to add a trailing slash.
 
-`http://www.example.com/dir` redirects to `http://www.example.com/dir/` with a `301`.
+`http://www.example.com/dir` redirects to `http://www.example.com/dir/` with a `308`.
 
 If there are multiple domains specified, requests will be redirected to the domain specified.
 
-`http://example.com/hero.svg` redirects to `http://www.example.com/hero.svg` with a `301`.
+`http://example.com/hero.svg` redirects to `http://www.example.com/hero.svg` with a `308`.
 
 ### <a id="file_types">File types</a>
 There's a list of default file types that can be overwritten.
