@@ -48,14 +48,15 @@ const methodNotAllowed={
 /**
  * @param {Deno.RequestEvent} requestEvent
  * @param {URL} url
+ * @param {Deno.Addr} remoteAddr
  * @param {?[Endpoint<*>]} endpoints
  * @return {Promise<void>}
  */
-const handle=async(requestEvent,url,endpoints)=>{
+const handle=async(requestEvent,url,remoteAddr,endpoints)=>{
   if(endpoints){
     for(const endpoint of endpoints){
       try{
-        const accepted=await endpoint.accept(requestEvent.request,url);
+        const accepted=await endpoint.accept(requestEvent.request,url,remoteAddr);
         if(accepted!==null){
           try{
             return requestEvent.respondWith(await endpoint.handle(accepted));
@@ -379,13 +380,15 @@ const listen=async(options, cwd=Deno.cwd())=>{
   async function dynamicEndpoints(dir,headers,modules){
     if(modules&&modules.length>0){
       const additionalHeaders=Object.assign({...defaultHeaders},headers||{});
-      const importMod=mod=>{
+      const importMod=async mod=>{
         const url=toFileUrl(cwd);
         url.pathname+=sanitizePath(`${dir}/${mod}`);
-        return import(url);
+        const imported=await import(url);
+        let endpoints=imported.default;
+        if(typeof endpoints==='function') endpoints=await endpoints();
+        return Array.isArray(endpoints)?endpoints:[endpoints];
       };
       return (await Promise.all(modules.map(importMod))).
-        map(it=>it.default).
         flat(1).
         map(it=>{
           if(it.name) console.log(underline(it.name));
@@ -478,16 +481,17 @@ const listen=async(options, cwd=Deno.cwd())=>{
   });
   /**
    * @param {Deno.HttpConn} requests
+   * @param {Deno.Addr} remoteAddr
    * @returns {Promise<void>}
    */
-  const handleRequests=async(requests)=>{
+  const handleRequests=async(requests,remoteAddr)=>{
     try{
       for await(/** @type {Deno.RequestEvent} */const requestEvent of requests){
         try{
           const url=new URL(requestEvent.request.url);
           const hostname=url.hostname;
           // noinspection ES6MissingAwait
-          await handle(requestEvent,url,state.get(hostname)?.endpoints);
+          await handle(requestEvent,url,remoteAddr,state.get(hostname)?.endpoints);
         }catch(err){
           console.warn(err);
         }
@@ -502,7 +506,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
       for await(const conn of server){
         try{
           // noinspection ES6MissingAwait
-          handleRequests(Deno.serveHttp(conn));
+          handleRequests(Deno.serveHttp(conn),conn.remoteAddr);
         }catch(err){
           console.warn(err);
         }

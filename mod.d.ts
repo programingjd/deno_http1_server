@@ -25,7 +25,7 @@ export interface DirectoryConfig {
 export type DirectoryName = string;
 export interface Endpoint<T> {
   name?: string,
-  accept: (request: Request, url: URL) => Promise<T>
+  accept: (request: Request, url: URL, remoteAddr: Deno.Addr) => Promise<T>
   handle: (accepted: T, headers?: Record<string,string>) => Promise<Response>
 }
 export type ServeOptions = Deno.ListenOptions & { transport?: 'tcp' }

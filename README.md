@@ -1,5 +1,18 @@
 # Deno HTTP/1.1 server #
 
+Table of Content:
+  - <a href="#why_http1">Why HTTP/1.1 ?</a>
+  - <a href="#file_structure">File structure</a>
+  - <a href="#update_endpoints">Update endpoints</a>
+  - <a href="#usage">How to use</a>
+  - <a href="#example">Example</a>
+  - <a href="#directory_config_files">Directory.json config files</a>
+  - <a href="#endpoints">Endpoints</a>
+  - <a href="#endpoints">Static files</a>
+    - <a href="#indexes">Indexes</a>
+    - <a href="#redirects">Redirects</a>
+    - <a href="#file_types">File types</a>
+
 ## <a id="why_http1">Why HTTP/1.1 ?</a>
 
 This server is supposed to be behind another server that handles HTTPS and the TLS Certificates, as well as HTTP2 and HTTP3 upgrades.
@@ -110,6 +123,14 @@ Endpoints can be implemented in js modules.
 The default export should be an `Endpoint<*>[]` or an `async () => Endpoint<*>[]`. 
 
 When multiple domains are used, no redirection is done by default. Redirection to a specific domain should be done in the endpoints if desired.
+
+```typescript
+interface Endpoint<T> {
+  name?: string,
+  accept: (request: Request, url: URL, remoteAddr: Deno.Addr) => Promise<T>
+  handle: (accepted: T, headers?: Record<string,string>) => Promise<Response>
+}
+```
 
 ## <a id="static_files">Static files</a>
 
