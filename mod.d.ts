@@ -24,6 +24,7 @@ export interface DirectoryConfig {
 }
 export type DirectoryName = string;
 export interface Endpoint<T> {
+  name?: string,
   accept: (request: Request, url: URL) => Promise<T>
   handle: (accepted: T, headers?: Record<string,string>) => Promise<Response>
 }

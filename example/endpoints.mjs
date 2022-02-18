@@ -4,6 +4,7 @@
 const endpoints=[
   /** @type {Endpoint<{Request,URL}>} */
   {
+    name: '/example/endpoint',
     accept:(request, url)=>{
       if(url.pathname!=='/example/endpoint') return null;
       return {request,url};
@@ -38,6 +39,7 @@ const endpoints=[
   },
   /** @type {Endpoint<Request>} */
   {
+    name: '/push_webhook',
     accept:(request, url)=>{
       if(url.pathname!=='/push_webhook') return null;
       return {request};
