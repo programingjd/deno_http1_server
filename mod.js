@@ -292,8 +292,8 @@ const listen=async(options, cwd=Deno.cwd())=>{
               body
             }
           );
-          console.log(blue(`${pathname.padEnd(80)}   ${filesize.toString().padStart(12)}`+
-                      `   ${(body.byteLength||filesize).toString().padStart(12)}`));
+          console.info(`${pathname.padEnd(80)}   ${filesize.toString().padStart(12)}`+
+                      `   ${(body.byteLength||filesize).toString().padStart(12)}`);
         }
       }else if(it.isDirectory){
         const filename=`${path}/${name}`;
@@ -388,7 +388,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
         map(it=>it.default).
         flat(1).
         map(it=>{
-          if(it.name) console.log(blue(it.name));
+          if(it.name) console.info(it.name);
           return {
             accept: it.accept,
             handle: async(accepted)=>await it.handle(accepted,additionalHeaders)
