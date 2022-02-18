@@ -87,7 +87,7 @@
                 "h2",
                 "http/1.1"
               ],
-              "protocol_min": "tls1.3"
+              "protocol_min": "tls1.2"
             }
           ],
           "routes": [
