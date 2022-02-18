@@ -58,6 +58,7 @@ const handle=async(requestEvent,url,remoteAddr,endpoints)=>{
       try{
         const accepted=await endpoint.accept(requestEvent.request,url,remoteAddr);
         if(accepted!==null){
+          if(endpoint.name) console.log(`${endpoint.name} handling ${url}`);
           try{
             return requestEvent.respondWith(await endpoint.handle(accepted));
           }catch(err){
@@ -115,6 +116,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
   /** @type {Endpoint<boolean>} */
   const updateAllEndpoint={
     updating: false,
+    name: '/update',
     accept: async function(request, url){
       if(request.method!=='GET') return null;
       if(url.pathname!=='/update') return null;
@@ -139,6 +141,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
   /** @type {Endpoint<{name:DirectoryName,updating:boolean}>} */
   const updateDirectoryEndpoint={
     updating: false,
+    name: '/update/{directory}',
     accept: async function(request, url){
       if(request.method!=='GET') return null;
       const match=/^[/]update[/]([^/]+)$/.exec(url.pathname);
@@ -332,6 +335,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
       cache
     );
     return {
+      name: `${path}/{files}`,
       accept: async(request, url)=>{
         const entry=cache.get(url.pathname);
         if(!entry) return null;
