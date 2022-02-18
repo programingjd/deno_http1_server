@@ -228,6 +228,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
   }
 
   /**
+   * @param {string} domain
    * @param {string} path
    * @param {string} prefix
    * @param {Headers} headers
@@ -236,7 +237,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
    * @param {Map<string,CacheValue>} cache
    * @returns {Promise<void>}
    */
-  async function walk(path,prefix,headers,mimes,excludes,cache){
+  async function walk(domain,path,prefix,headers,mimes,excludes,cache){
     /** @type [[string,MimeTypeConfig]] */
     const mimeEntries=Object.entries(mimes);
     for await(const it of Deno.readDir(`${cwd}/${path}`)){
@@ -251,7 +252,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
           if(excludes.has(filename)) continue;
           let pathname;
           if(it.name==='index.html'){
-            pathname=prefix===''?prefix:`${prefix}/`;
+            pathname=prefix===''?`https://${domain}`:`${prefix}/`;
             const redir=prefix===''?`${prefix}/`:prefix;
             console.log(`redirect ${redir} to ${pathname}`);
             cache.set(
@@ -304,7 +305,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
       }else if(it.isDirectory){
         const filename=`${path}/${name}`;
         if(!excludes.has(filename)){
-          await walk(filename,`${prefix}/${name}`,headers,mimes,excludes,cache);
+          await walk(domain,filename,`${prefix}/${name}`,headers,mimes,excludes,cache);
         }
       }
     }
@@ -326,6 +327,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
     const mergedHeaders=mergeHeaders(defaultHeaders,config.headers);
     const mergedMimes=Object.assign({...defaultMimes},config.mime_types||{});
     await walk(
+      config.domain,
       dir,
       path,
       mergedHeaders,
@@ -339,9 +341,9 @@ const listen=async(options, cwd=Deno.cwd())=>{
     return {
       name: `${path}/{files}`,
       accept: async(request, url)=>{
-        const entry=cache.get(url.pathname);
+        const key=url.pathname==='/'?'':url.pathname;
+        const entry=cache.get(key);
         if(!entry) return null;
-        console.log(`accepted "${url.pathname}"`);
         if(url.hostname!==config.domain){
           const location=new URL(url);
           location.hostname=config.domain;
