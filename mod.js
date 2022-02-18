@@ -406,6 +406,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
     try{
       console.log(bold(`${magenta('Directory')}: ${dir}`));
       const url=toFileUrl(cwd);
+      console.log(`cwd: ${cwd}   ${url.toString()}`);
       url.pathname+=`/${dir}/directory.json`;
       const mod=await import(url,{assert:{type:'json'}});
       const config=validateDirectoryConfig(mod.default);
