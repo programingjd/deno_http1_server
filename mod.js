@@ -292,8 +292,8 @@ const listen=async(options, cwd=Deno.cwd())=>{
               body
             }
           );
-          console.log(`${underline(pathname).padEnd(80)}   ${filesize.toString().padStart(12)}`+
-                      `   ${(body.byteLength||filesize).toString().padStart(12)}`);
+          console.log(`${underline(pathname||'/').padEnd(80)}   ${filesize.toString().padStart(12)}`
+                      +`   ${(body.byteLength||filesize).toString().padStart(12)}`);
         }
       }else if(it.isDirectory){
         const filename=`${path}/${name}`;
