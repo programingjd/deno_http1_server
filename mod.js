@@ -1,4 +1,4 @@
-import {magenta,yellow,bold,cyan} from 'https://deno.land/std/fmt/colors.ts';
+import {magenta,yellow,bold,cyan,gray} from 'https://deno.land/std/fmt/colors.ts';
 import {readableStreamFromReader} from 'https://deno.land/std/io/mod.ts';
 import {toFileUrl} from 'https://deno.land/std/path/mod.ts';
 import {compress as br} from 'https://deno.land/x/brotli/mod.ts';
@@ -463,7 +463,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
             }
             state.set(domain,config);
           }
-        }
+        }else console.log(bold(`${gray('Directory')}: ${it.name}`));
       }
     }
     return state;
