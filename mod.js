@@ -58,7 +58,6 @@ const handle=async(requestEvent,url,remoteAddr,endpoints)=>{
       try{
         const accepted=await endpoint.accept(requestEvent.request,url,remoteAddr);
         if(accepted!==null){
-          if(endpoint.name) console.log(`${endpoint.name} handling ${url}`);
           try{
             return requestEvent.respondWith(await endpoint.handle(accepted));
           }catch(err){
@@ -307,7 +306,6 @@ const listen=async(options, cwd=Deno.cwd())=>{
               body
             }
           );
-          console.log(filename);
           console.log(`${underline(pathname||'/').padEnd(80)}   ${filesize.toString().padStart(12)}`
                       +`   ${(body.byteLength||filesize).toString().padStart(12)}`);
         }
@@ -331,7 +329,6 @@ const listen=async(options, cwd=Deno.cwd())=>{
     /** @type {Map<string,CacheValue>} */
     const cache=new Map();
     const path=sanitizePath(config.path);
-    console.log(`path: "${path}"`);
     // noinspection JSValidateTypes
     const mergedHeaders=mergeHeaders(defaultHeaders,config.headers);
     const mergedMimes=Object.assign({...defaultMimes},config.mime_types||{});
@@ -379,7 +376,6 @@ const listen=async(options, cwd=Deno.cwd())=>{
       },
       handle: async(value)=>{
         const body=typeof value.body==='function'?await value.body():value.body;
-        console.log(value.status);
         return new Response(
           body,
           {
