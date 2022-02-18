@@ -321,7 +321,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
     /** @type {Map<string,CacheValue>} */
     const cache=new Map();
     const path=sanitizePath(config.path);
-    console.log(path);
+    console.log(`path: "${path}"`);
     // noinspection JSValidateTypes
     const mergedHeaders=mergeHeaders(defaultHeaders,config.headers);
     const mergedMimes=Object.assign({...defaultMimes},config.mime_types||{});
@@ -341,6 +341,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
       accept: async(request, url)=>{
         const entry=cache.get(url.pathname);
         if(!entry) return null;
+        console.log(`accepted "${url.pathname}"`);
         if(url.hostname!==config.domain){
           const location=new URL(url);
           location.hostname=config.domain;
