@@ -365,6 +365,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
       },
       handle: async(value)=>{
         const body=typeof value.body==='function'?await value.body():value.body;
+        console.log(value.status);
         return new Response(
           body,
           {
