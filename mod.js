@@ -382,7 +382,6 @@ const listen=async(options, cwd=Deno.cwd())=>{
       const importMod=mod=>{
         const url=toFileUrl(cwd);
         url.pathname+=sanitizePath(`${dir}/${mod}`);
-        console.log(url.toString());
         return import(url);
       };
       return (await Promise.all(modules.map(importMod))).
