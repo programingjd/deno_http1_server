@@ -20,7 +20,7 @@ This server is supposed to be behind another server that handles HTTPS and the T
 This can be a CDN like [cloudflare](https://www.cloudflare.com/) and/or another server like [nginx](https://www.nginx.com/) or [caddy](https://caddyserver.com/).
 
 File contents are pre-compressed and preloaded into memory (unless the configuration files specifies not to). The compression is using [brotli](https://en.wikipedia.org/wiki/Brotli) compression because it's now available in all mainstream browsers and tools.<br>
-Unfortunately, browsers [don't support brotli compression with http (non-https)](https://stackoverflow.com/a/43862563/10498513). This means that you can't test it directly in the browser unless you do have that additional server in front. The [example](#example) includes a caddy configuration to do that.
+Unfortunately, browsers [don't support brotli compression with http (non-https)](https://stackoverflow.com/a/43862563/10498513). This means that you can't test it directly in the browser unless you do have that additional server in front. The [example](#example) includes a caddy configuration to do that. Note that in the caddy configuration, `strict_sni_host` is disabled because [it doesn't work with http3](https://github.com/caddyserver/caddy/issues/4294).
 
 ## <a id="file_structure">File structure</a>
 
