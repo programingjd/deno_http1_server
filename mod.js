@@ -1,4 +1,4 @@
-import {magenta,blue,dim,bold} from 'https://deno.land/std/fmt/colors.ts';
+import {underline,strikethrough,magenta} from 'https://deno.land/std/fmt/colors.ts';
 import {readableStreamFromReader} from 'https://deno.land/std/io/mod.ts';
 import {toFileUrl} from 'https://deno.land/std/path/mod.ts';
 import {compress as br} from 'https://deno.land/x/brotli/mod.ts';
@@ -404,7 +404,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
    */
   async function updateDirectoryState(dir){
     try{
-      console.log(bold(`${magenta('Directory')}: ${dir}`));
+      console.log(`${magenta('Directory')}: ${dir}`);
       const url=toFileUrl(cwd);
       url.pathname+=`/${dir}/directory.json`;
       const mod=await import(url,{assert:{type:'json'}});
@@ -462,7 +462,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
             }
             state.set(domain,config);
           }
-        }else console.log(dim(`Directory: ${it.name}`));
+        }else console.log(strikethrough(`Directory: ${it.name}`));
       }
     }
     return state;
@@ -471,7 +471,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
   state=await updateState();
   const server=Deno.listen(options);
   // noinspection HttpUrlsUsage
-  console.log(bold(`Listening on http://${address(options)}.`));
+  console.log(`Listening on http://${address(options)}.`);
   signal?.addEventListener('abort',()=>{
     console.log('stopping server');
     server.close();
