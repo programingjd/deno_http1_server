@@ -252,16 +252,25 @@ const listen=async(options, cwd=Deno.cwd())=>{
           if(excludes.has(filename)) continue;
           let pathname;
           if(it.name==='index.html'){
-            pathname=prefix===''?`https://${domain}`:`${prefix}/`;
-            const redir=prefix===''?`${prefix}/`:prefix;
-            console.log(`redirect ${redir} to ${pathname}`);
-            cache.set(
-              redir,
-              {
-                headers: mergeHeaders(headers,{location:pathname}),
-                status: 308
-              }
-            );
+            if(prefix===''){
+              pathname='';
+              cache.set(
+                '/',
+                {
+                  headers: mergeHeaders(headers,{location:`https://${domain}`}),
+                  status: 308
+                }
+              );
+            }else{
+              pathname=`${prefix}/`
+              cache.set(
+                prefix,
+                {
+                  headers: mergeHeaders(headers,{location:pathname}),
+                  status: 308
+                }
+              );
+            }
           }else pathname=`${prefix}/${name}`;
           const stat=await Deno.stat(`${cwd}${filename}`);
           const cacheThreshold=threshold(mimeEntry[1].cache_threshold);
