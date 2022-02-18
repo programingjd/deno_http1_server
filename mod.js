@@ -251,8 +251,9 @@ const listen=async(options, cwd=Deno.cwd())=>{
           if(excludes.has(filename)) continue;
           let pathname;
           if(it.name==='index.html'){
-            pathname=prefix===''?'':`${prefix}/`;
+            pathname=prefix===''?prefix:`${prefix}/`;
             const redir=prefix===''?`${prefix}/`:prefix;
+            console.log(`redirect ${redir} to ${pathname}`);
             cache.set(
               redir,
               {
@@ -320,6 +321,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
     /** @type {Map<string,CacheValue>} */
     const cache=new Map();
     const path=sanitizePath(config.path);
+    console.log(path);
     // noinspection JSValidateTypes
     const mergedHeaders=mergeHeaders(defaultHeaders,config.headers);
     const mergedMimes=Object.assign({...defaultMimes},config.mime_types||{});
