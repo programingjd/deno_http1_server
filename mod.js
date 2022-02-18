@@ -389,7 +389,6 @@ const listen=async(options, cwd=Deno.cwd())=>{
         map(it=>it.default).
         flat(1).
         map(it=>{
-          console.log(it);
           if(it.name) console.log(underline(it.name));
           return {
             accept: it.accept,
