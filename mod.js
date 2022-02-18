@@ -437,7 +437,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
      */
     const hasConfig=async(name)=>{
       try{
-        return (await Deno.lstat(`./${name}/directory.json`)).isFile;
+        return (await Deno.lstat(`${cwd}/${name}/directory.json`)).isFile;
       }catch(_){
         return false;
       }
