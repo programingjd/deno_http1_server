@@ -292,6 +292,8 @@ const listen=async(options, cwd=Deno.cwd())=>{
               body
             }
           );
+          console.log(pathname);
+          console.log(pathname.length);
           console.log(`${underline(pathname).padEnd(80)}   ${filesize.toString().padStart(12)}`+
                       `   ${(body.byteLength||filesize).toString().padStart(12)}`);
         }
