@@ -287,9 +287,9 @@ const listen=async(options, cwd=Deno.cwd())=>{
             body=await Deno.readFile(`${cwd}${filename}`);
             if(compress){
               body=await br(body);
+              cacheHeaders.set('content-encoding','br');
             }
             cacheHeaders.set('content-length',body.byteLength.toString());
-            cacheHeaders.set('content-encoding','br');
           }else{
             body=async()=>{
               const file=await Deno.open(`${cwd}${filename}`,{read:true});
