@@ -515,6 +515,8 @@ const listen=async(options, cwd=Deno.cwd())=>{
       }
     }catch(err){
       console.warn(err);
+      if(signal?.aborted===true) return;
+      await handleRequests(requests,remoteAddr);
     }
   }
   return async()=>{
