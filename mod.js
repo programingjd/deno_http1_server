@@ -509,14 +509,14 @@ const listen=async(options, cwd=Deno.cwd())=>{
           // noinspection ES6MissingAwait
           await handle(requestEvent,url,remoteAddr,state.get(hostname)?.endpoints);
         }catch(err){
-          console.warn(err);
+          console.warn(remoteAddr,err);
         }
         if(signal?.aborted===true) break;
       }
     }catch(err){
-      console.warn(err);
+      console.warn(remoteAddr,err);
       if(signal?.aborted===true) return;
-      await handleRequests(requests,remoteAddr);
+      requests.close();
     }
   }
   return async()=>{
@@ -526,7 +526,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
           // noinspection ES6MissingAwait
           handleRequests(Deno.serveHttp(conn),conn.remoteAddr);
         }catch(err){
-          console.warn(err);
+          console.warn(conn.remoteAddr,err);
         }
         if(signal?.aborted===true) break;
       }
