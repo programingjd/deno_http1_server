@@ -520,18 +520,21 @@ const listen=async(options, cwd=Deno.cwd())=>{
     }
   }
   return async()=>{
-    try{
-      for await(const conn of server){
-        try{
-          // noinspection ES6MissingAwait
-          handleRequests(Deno.serveHttp(conn),conn.remoteAddr);
-        }catch(err){
-          console.warn(conn.remoteAddr,err);
+    while(true){
+      try{
+        for await(const conn of server){
+          try{
+            // noinspection ES6MissingAwait
+            handleRequests(Deno.serveHttp(conn),conn.remoteAddr);
+          }catch(err){
+            console.warn(conn.remoteAddr,err);
+          }
+          if(signal?.aborted===true) break;
         }
-        if(signal?.aborted===true) break;
+      }catch(err){
+        console.warn(err);
       }
-    }catch(err){
-      console.warn(err);
+      if(signal?.aborted===true) break;
     }
     console.log('server shutdown');
   }
