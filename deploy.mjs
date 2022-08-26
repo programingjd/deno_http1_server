@@ -96,6 +96,8 @@ const listen=async(config,options, cwd=Deno.cwd())=>{
     return new Headers([...map.entries()]);
   }
 
+  const mtime=Date.now().toString(16);
+
   /**
    * @param {string} domain
    * @param {string} path
@@ -146,7 +148,7 @@ const listen=async(config,options, cwd=Deno.cwd())=>{
           const filesize=stat.size
           const cacheBody=cacheThreshold===null||filesize<=cacheThreshold;
           const compress=cacheBody&&mimeEntry[1].compress;
-          const etag=`${stat.mtime.getTime().toString(16)}:${filesize.toString(16)}`;
+          const etag=`${mtime}:${filesize.toString(16)}`;
           const cacheHeaders=mergeHeaders(
             headers,
             {'content-type': mimeEntry[0],etag},
