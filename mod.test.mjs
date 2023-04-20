@@ -109,7 +109,7 @@ await Deno.test({
           const response=await fetch('http://www.test.local:8080/example/deno.svg');
           assertEquals(response.status,200);
           assertEquals(response.headers.get('content-type'),'image/svg+xml');
-          assertEquals(response.headers.get('cache-control'),'public,immutable');
+          assertEquals(response.headers.get('cache-control'),'public,max-age=31536000,immutable');
           assert(response.headers.get('etag'));
           assertEquals(response.headers.get('strict-transport-security'),'max-age=86400');
           assertEquals(response.headers.get('vary'),'Accept-Encoding');

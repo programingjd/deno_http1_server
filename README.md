@@ -12,6 +12,7 @@ Table of Content:
     - <a href="#indexes">Indexes</a>
     - <a href="#redirects">Redirects</a>
     - <a href="#file_types">File types</a>
+  - <a href="#tests">Running the tests</a>
 
 ## <a id="why_http1">Why HTTP/1.1 ?</a>
 
@@ -218,3 +219,15 @@ Example configuration:
 ```
 
 The list of default types is [here](mimes.json).
+
+## <a id="tests">Running the tests</a>
+
+The tests assume that `test.local` and `www.test.local` resolve to the local host.
+
+The easiest way to do that is probably to edit `/etc/hosts` (on linux/os-x) or `%SYSTEM_ROOT%\System32\drivers\etc\hosts` (on windows)
+and add the lines:
+
+```
+127.0.0.1         test.local www.test.local
+::1               test.local www.test.local
+```

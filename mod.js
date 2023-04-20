@@ -1,5 +1,5 @@
 import {underline,strikethrough,magenta} from 'https://deno.land/std/fmt/colors.ts';
-import {readableStreamFromReader} from 'https://deno.land/std/io/mod.ts';
+import {readableStreamFromReader} from 'https://deno.land/std/streams/mod.ts';
 import {toFileUrl} from 'https://deno.land/std/path/mod.ts';
 import {compress as br} from 'https://deno.land/x/brotli/mod.ts';
 

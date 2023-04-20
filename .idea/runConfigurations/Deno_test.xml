@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Deno test" type="DenoConfigurationType" inputPath="$PROJECT_DIR$/mod.test.mjs" programParameters="test -A">
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
