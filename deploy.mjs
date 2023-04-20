@@ -2,7 +2,7 @@ import defaultHeaders from './headers.json' assert {type:'json'};
 import defaultMimes from './mimes.json' assert {type:'json'};
 import {underline} from 'https://deno.land/std/fmt/colors.ts';
 import {compress as br} from 'https://deno.land/x/brotli/mod.ts';
-import {readableStreamFromReader} from 'https://deno.land/std/io/mod.ts';
+import {readableStreamFromReader} from 'https://deno.land/std/streams/mod.ts';
 
 /** @type {CacheValue} */
 const methodNotAllowed={
