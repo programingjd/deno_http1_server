@@ -23,6 +23,6 @@ const controller=new AbortController();
 // });
 // console.info('Press Ctrl-C to stop the server.');
 const serve=await listen({
-  hostname:host||'0.0.0.0',port:port||8080,transport:'tcp',signal:controller.signal
+  hostname:host||'0.0.0.0',port:port||8080,signal:controller.signal
 });
 await serve();

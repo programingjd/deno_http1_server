@@ -11,11 +11,11 @@ const localDomains=new Set([
 ]);
 
 /**
- * @param {ServerOptions} options
+ * @param {ServeOptions|ServeUnixOptions} options
  * @return {string}
  */
 const address=(options)=>{
-  if(options.transport==='unix'){
+  if(options.path){
     // noinspection JSUnresolvedVariable
     return `${options.path}`;
   }
@@ -46,23 +46,23 @@ const methodNotAllowed={
 };
 
 /**
- * @param {Deno.RequestEvent} requestEvent
+ * @param {Request} request
  * @param {URL} url
- * @param {Deno.Addr} remoteAddr
+ * @param {Deno.UnixAddr|Deno.NetAddr} remoteAddr
  * @param {?[Endpoint<*>]} endpoints
- * @return {Promise<void>}
+ * @return {Promise<Response>}
  */
-const handle=async(requestEvent,url,remoteAddr,endpoints)=>{
+const handle=async(request,url,remoteAddr,endpoints)=>{
   if(endpoints){
     for(const endpoint of endpoints){
       try{
-        const accepted=await endpoint.accept(requestEvent.request,url,remoteAddr);
+        const accepted=await endpoint.accept(request,url,remoteAddr);
         if(accepted!==null){
           try{
-            return requestEvent.respondWith(await endpoint.handle(accepted));
+            return await endpoint.handle(accepted);
           }catch(err){
             console.warn(err);
-            return requestEvent.respondWith(new Response(null,{status:500}));
+            return new Response(null,{status:500});
           }
         }
       }catch(err){
@@ -70,11 +70,11 @@ const handle=async(requestEvent,url,remoteAddr,endpoints)=>{
       }
     }
   }
-  return await requestEvent.respondWith(new Response(null,{status:404}));
+  return new Response(null,{status:404});
 }
 
 /**
- * @param {ServerOptions} options
+ * @param {ServeOptions} options
  * @param {string} [cwd=Deno.cwd()]
  * @return {Promise<()=>Promise<void>>}
  */
@@ -237,7 +237,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
    * @returns {Promise<void>}
    */
   async function walk(domain,path,prefix,headers,mimes,excludes,cache){
-    /** @type [[string,MimeTypeConfig]] */
+    /** @type {[string,MimeTypeConfig][]} */
     const mimeEntries=Object.entries(mimes);
     for await(const it of Deno.readDir(`${cwd}/${path}`)){
       const name=it.name;
@@ -488,56 +488,30 @@ const listen=async(options, cwd=Deno.cwd())=>{
   }
 
   state=await updateState();
-  const server=Deno.listen(options);
+  /**
+   * @param {Request} request
+   * @param {Deno.UnixAddr|Deno.NetAddr} remoteAddr
+   * @returns {Promise<Response>}
+   */
+  const handleRequest=async(request,remoteAddr)=>{
+    try{
+      const url=new URL(request.url);
+      const hostname=url.hostname;
+      // noinspection ES6MissingAwait
+      return await handle(request,url,remoteAddr,state.get(hostname)?.endpoints);
+    }catch(err){
+      console.warn(remoteAddr,err);
+    }
+  };
+  const server=Deno.serve(options, handleRequest);
   // noinspection HttpUrlsUsage
   console.log(`Listening on http://${address(options)}.`);
   signal?.addEventListener('abort',()=>{
     console.log('stopping server');
-    server.close();
+    server.shutdown();
   });
-  /**
-   * @param {Deno.HttpConn} requests
-   * @param {Deno.Addr} remoteAddr
-   * @returns {Promise<void>}
-   */
-  const handleRequests=async(requests,remoteAddr)=>{
-    try{
-      for await(/** @type {Deno.RequestEvent} */const requestEvent of requests){
-        try{
-          const url=new URL(requestEvent.request.url);
-          const hostname=url.hostname;
-          // noinspection ES6MissingAwait
-          await handle(requestEvent,url,remoteAddr,state.get(hostname)?.endpoints);
-        }catch(err){
-          console.warn(remoteAddr,err);
-        }
-        if(signal?.aborted===true) break;
-      }
-    }catch(err){
-      console.warn(remoteAddr,err);
-      if(signal?.aborted===true) return;
-      requests.close();
-    }
-  }
-  return async()=>{
-    while(true){
-      try{
-        for await(const conn of server){
-          try{
-            // noinspection ES6MissingAwait
-            handleRequests(Deno.serveHttp(conn),conn.remoteAddr);
-          }catch(err){
-            console.warn(conn.remoteAddr,err);
-          }
-          if(signal?.aborted===true) break;
-        }
-      }catch(err){
-        console.warn(err);
-      }
-      if(signal?.aborted===true) break;
-    }
-    console.log('server shutdown');
-  }
+  await server.finished;
+  console.log('server shutdown');
 };
 
 export {

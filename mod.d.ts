@@ -25,13 +25,12 @@ export interface DirectoryConfig {
 export type DirectoryName = string;
 export interface Endpoint<T> {
   name?: string,
-  accept: (request: Request, url: URL, remoteAddr: Deno.Addr) => Promise<T>
+  accept: (request: Request, url: URL, remoteAddr: Deno.NetAddr|Deno.UnixAddr) => Promise<T>
   handle: (accepted: T, headers?: Record<string,string>) => Promise<Response>
 }
-export type ServeOptions = Deno.ListenOptions & { transport?: 'tcp' }
-export type ServerOptions = ServeOptions & { signal?: AbortSignal }
+export type ServeOptions = Deno.ServeOptions|Deno.ServeUnixOptions
 
-export function listen(options: ServerOptions,workingDirectory?: string):Promise<()=>Promise<void>>
+export function listen(options: ServeOptions,workingDirectory?: string):Promise<()=>Promise<void>>
 interface DirectoryEndpoints {
   directory: string,
   domains: DomainName[],
