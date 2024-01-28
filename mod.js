@@ -500,6 +500,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
       return await handle(request,url,remoteAddr,state.get(hostname)?.endpoints);
     }catch(err){
       console.warn(remoteAddr,err);
+      return new Response(null,{status:500});
     }
   };
   const server=Deno.serve(options, handleRequest);
