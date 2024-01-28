@@ -64,7 +64,7 @@ There's also a caddy configuration for that example in [caddy/caddy.json](caddy/
 For testing locally, you need to modify your [hosts](https://en.wikipedia.org/wiki/Hosts_(file)) file to have `test.local` and `www.test.local` point to `127.0.0.1`.
 
 The example server can be started with [index.mjs](index.mjs):
-`deno run -A index.js`
+`deno run -A index.mjs`
 
 Once the server and caddy are running, you can point your browser (or curl) to
 [https://test.local/example](https://test.local/example).
