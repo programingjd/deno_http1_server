@@ -293,7 +293,7 @@ const listen=async(config,options,baseUrl,cwd=Deno.cwd())=>{
 
   /**
    * @param {DirectoryConfig} directoryConfig
-   * @return {Promise<?DirectoryEndpoints>}
+   * @return {Promise<DirectoryEndpoints>}
    */
   async function updateDirectoryState(directoryConfig){
     try{
@@ -307,8 +307,7 @@ const listen=async(config,options,baseUrl,cwd=Deno.cwd())=>{
         endpoints
       }
     }catch(err){
-      console.error(err);
-      return null;
+      throw new Error('Could not load config.',{cause: err});
     }
   }
 
@@ -321,7 +320,6 @@ const listen=async(config,options,baseUrl,cwd=Deno.cwd())=>{
     const state=new Map();
 
     const config=await updateDirectoryState(directoryConfig);
-    if(!config) throw new Error('Could not load config.');
     for(const domain of config.domains){
       if(state.has(domain)) {
         throw new Error(`Domain "${domain}" is assigned to two different directories.`);
