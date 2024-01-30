@@ -307,7 +307,7 @@ const listen=async(config,options,baseUrl,cwd=Deno.cwd())=>{
         endpoints
       }
     }catch(err){
-      throw new Error('Could not load config.',{cause: err});
+      throw new Error(`Could not load config.\n${err.stack}`,{cause: err});
     }
   }
 
