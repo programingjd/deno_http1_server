@@ -3,7 +3,6 @@ import defaultMimes from './mimes.json' assert {type:'json'};
 import {underline} from 'https://deno.land/std/fmt/colors.ts';
 import {compress as br} from 'https://deno.land/x/brotli/mod.ts';
 import {readableStreamFromReader} from 'https://deno.land/std/streams/mod.ts';
-import {toFileUrl} from 'https://deno.land/std/path/mod.ts';
 
 /** @type {CacheValue} */
 const methodNotAllowed={
@@ -44,10 +43,12 @@ const handle=async(request,url,remoteAddr,endpoints)=>{
 /**
  * @param {DirectoryConfig} config
  * @param {ServeOptions} options
+ * @param {URL} baseUrl
  * @param {string} [cwd=Deno.cwd()]
  * @return {Promise<()=>Promise<void>>}
  */
-const listen=async(config,options, cwd=Deno.cwd())=>{
+const listen=async(config,options,baseUrl,cwd=Deno.cwd())=>{
+  cwd=cwd.replaceAll('\\','/');
   const {signal=null}=options;
   /** @type {State} */
   let state=new Map();
@@ -270,12 +271,7 @@ const listen=async(config,options, cwd=Deno.cwd())=>{
     if(modules&&modules.length>0){
       const additionalHeaders=Object.assign({...defaultHeaders},headers||{});
       const importMod=async mod=>{
-        let url;
-        try{
-          url=toFileUrl(cwd);
-        }catch(_){
-          url=cwd;
-        }
+        const url=new URL(baseUrl);
         url.pathname+=sanitizePath(`${dir}/${mod}`);
         const imported=await import(url);
         let endpoints=imported.default;
