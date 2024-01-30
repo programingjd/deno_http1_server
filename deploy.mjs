@@ -3,6 +3,7 @@ import defaultMimes from './mimes.json' assert {type:'json'};
 import {underline} from 'https://deno.land/std/fmt/colors.ts';
 import {compress as br} from 'https://deno.land/x/brotli/mod.ts';
 import {readableStreamFromReader} from 'https://deno.land/std/streams/mod.ts';
+import {toFileUrl} from 'https://deno.land/std/path/mod.ts';
 
 /** @type {CacheValue} */
 const methodNotAllowed={
@@ -260,6 +261,36 @@ const listen=async(config,options, cwd=Deno.cwd())=>{
   }
 
   /**
+   * @param {DirectoryName} dir
+   * @param {Object<string,string>} headers
+   * @param {?[string]} modules
+   * @returns {Promise<[Endpoint<*>]>}
+   */
+  async function dynamicEndpoints(dir,headers,modules){
+    if(modules&&modules.length>0){
+      const additionalHeaders=Object.assign({...defaultHeaders},headers||{});
+      const importMod=async mod=>{
+        const url=toFileUrl(cwd);
+        url.pathname+=sanitizePath(`${dir}/${mod}`);
+        const imported=await import(url);
+        let endpoints=imported.default;
+        if(typeof endpoints==='function') endpoints=await endpoints();
+        return Array.isArray(endpoints)?endpoints:[endpoints];
+      };
+      return (await Promise.all(modules.map(importMod))).
+      flat(1).
+      map(it=>{
+        if(it.name) console.log(underline(it.name));
+        return {
+          accept: it.accept,
+          handle: async(accepted)=>await it.handle(accepted,additionalHeaders)
+        };
+      });
+    }
+    return [];
+  }
+
+  /**
    * @param {DirectoryConfig} directoryConfig
    * @return {Promise<?DirectoryEndpoints>}
    */
@@ -267,7 +298,8 @@ const listen=async(config,options, cwd=Deno.cwd())=>{
     try{
       /** @type {[Endpoint<*>]} */
       const endpoints=[
-        await staticEndpoint(cwd,config.headers,config.static)
+        await staticEndpoint(cwd,config.headers,config.static),
+        ...await dynamicEndpoints(dir,config.headers,config.endpoints)
       ].filter(it=>it);
       return {
         domains: directoryConfig.domains,
