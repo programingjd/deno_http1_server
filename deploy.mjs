@@ -270,7 +270,12 @@ const listen=async(config,options, cwd=Deno.cwd())=>{
     if(modules&&modules.length>0){
       const additionalHeaders=Object.assign({...defaultHeaders},headers||{});
       const importMod=async mod=>{
-        const url=toFileUrl(cwd);
+        let url;
+        try{
+          url=toFileUrl(cwd);
+        }catch(_){
+          url=cwd;
+        }
         url.pathname+=sanitizePath(`${dir}/${mod}`);
         const imported=await import(url);
         let endpoints=imported.default;
