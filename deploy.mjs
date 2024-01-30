@@ -299,7 +299,7 @@ const listen=async(config,options, cwd=Deno.cwd())=>{
       /** @type {[Endpoint<*>]} */
       const endpoints=[
         await staticEndpoint(cwd,config.headers,config.static),
-        ...await dynamicEndpoints(dir,config.headers,config.endpoints)
+        ...await dynamicEndpoints(cwd,config.headers,config.endpoints)
       ].filter(it=>it);
       return {
         domains: directoryConfig.domains,
