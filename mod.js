@@ -11,7 +11,7 @@ const localDomains=new Set([
 ]);
 
 /**
- * @param {ServeOptions|ServeUnixOptions} options
+ * @param {ServeOptions} options
  * @return {string}
  */
 const address=(options)=>{
@@ -75,10 +75,10 @@ const handle=async(request,url,remoteAddr,endpoints)=>{
 
 /**
  * @param {ServeOptions} options
- * @param {string} [cwd=Deno.cwd()]
+ * @param {string} [baseUrl=Deno.baseUrl()]
  * @return {Promise<()=>Promise<void>>}
  */
-const listen=async(options, cwd=Deno.cwd())=>{
+const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
   const {signal=null}=options;
 
   let defaultHeaders=(await import('./headers.json',{assert:{type:'json'}})).default;
@@ -239,7 +239,8 @@ const listen=async(options, cwd=Deno.cwd())=>{
   async function walk(domain,path,prefix,headers,mimes,excludes,cache){
     /** @type {[string,MimeTypeConfig][]} */
     const mimeEntries=Object.entries(mimes);
-    for await(const it of Deno.readDir(`${cwd}/${path}`)){
+    const dirUrl=new URL(`${baseUrl.pathname}/${path}`, baseUrl);
+    for await(const it of Deno.readDir(dirUrl)){
       const name=it.name;
       if(it.isFile){
         // noinspection JSCheckFunctionSignatures
@@ -247,7 +248,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
           ([,value])=>value.suffixes.find(suffix=>name.endsWith(suffix))
         );
         if(mimeEntry){
-          let filename=`/${path}/${name}`;
+          let filename=`${path}/${name}`;
           if(excludes.has(filename)) continue;
           let pathname;
           if(it.name==='index.html'){
@@ -271,7 +272,8 @@ const listen=async(options, cwd=Deno.cwd())=>{
               );
             }
           }else pathname=`${prefix}/${name}`;
-          const stat=await Deno.stat(`${cwd}${filename}`);
+          const childUrl=new URL(`${baseUrl.pathname}/${filename}`,baseUrl);
+          const stat=await Deno.stat(childUrl);
           const cacheThreshold=threshold(mimeEntry[1].cache_threshold);
           const filesize=stat.size
           const cacheBody=cacheThreshold===null||filesize<=cacheThreshold;
@@ -284,7 +286,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
           );
           let body;
           if(cacheBody){
-            body=await Deno.readFile(`${cwd}${filename}`);
+            body=await Deno.readFile(childUrl);
             if(compress){
               body=await br(body);
               cacheHeaders.set('content-encoding','br');
@@ -292,7 +294,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
             cacheHeaders.set('content-length',body.byteLength.toString());
           }else{
             body=async()=>{
-              const file=await Deno.open(`${cwd}${filename}`,{read:true});
+              const file=await Deno.open(childUrl,{read:true});
               const stat=await file.stat();
               if(stat.size!==filesize) throw new Error('File changed.');
               return readableStreamFromReader(file);
@@ -397,7 +399,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
     if(modules&&modules.length>0){
       const additionalHeaders=Object.assign({...defaultHeaders},headers||{});
       const importMod=async mod=>{
-        const url=toFileUrl(cwd);
+        const url=new URL(baseUrl);
         url.pathname+=sanitizePath(`${dir}/${mod}`);
         const imported=await import(url);
         let endpoints=imported.default;
@@ -424,7 +426,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
   async function updateDirectoryState(dir){
     try{
       console.log(`${magenta('Directory')}: ${dir}`);
-      const url=toFileUrl(cwd);
+      const url=new URL(baseUrl);
       url.pathname+=`/${dir}/directory.json`;
       const mod=await import(url,{assert:{type:'json'}});
       const config=validateDirectoryConfig(mod.default);
@@ -455,7 +457,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
      */
     const hasConfig=async(name)=>{
       try{
-        return (await Deno.lstat(`${cwd}/${name}/directory.json`)).isFile;
+        return (await Deno.lstat(new URL(`${baseUrl.pathname}/${name}/directory.json`, baseUrl))).isFile;
       }catch(_){
         return false;
       }
@@ -469,7 +471,7 @@ const listen=async(options, cwd=Deno.cwd())=>{
     for(const domain of localDomains){
       state.set(domain,localEndpoints);
     }
-    for await(const it of Deno.readDir(cwd)){
+    for await(const it of Deno.readDir(baseUrl)){
       if(it.isDirectory){
         if(it.name.charAt(0)==='.') continue;
         if(await hasConfig(it.name)){
@@ -482,6 +484,18 @@ const listen=async(options, cwd=Deno.cwd())=>{
             state.set(domain,config);
           }
         }else console.log(strikethrough(`Directory: ${it.name}`));
+      }
+    }
+    if(state.size===localDomains.size){
+      if(await hasConfig('')){
+        const config=await updateDirectoryState('');
+        if(!config) throw new Error(`Could not load config for current directory.`);
+        for(const domain of config.domains){
+          if(state.has(domain)) {
+            throw new Error(`Domain "${domain}" is assigned to two different directories.`);
+          }
+          state.set(domain,config);
+        }
       }
     }
     return state;

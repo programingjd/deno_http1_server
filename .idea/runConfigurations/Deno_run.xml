@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Deno run" type="DenoConfigurationType" inputPath="$PROJECT_DIR$/mod.js" programParameters="run -A" workingDirectory="$PROJECT_DIR$">
+  <configuration default="false" name="Deno run" type="DenoConfigurationType" inputPath="$PROJECT_DIR$/example/serve.mjs" programParameters="run -A" workingDirectory="$PROJECT_DIR$/example">
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

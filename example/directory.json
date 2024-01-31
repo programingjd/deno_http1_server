@@ -7,7 +7,9 @@
     "path": "/example",
     "domain": "www.test.local",
     "excludes": [
-      "endpoints.mjs"
+      "directory.json",
+      "endpoints.mjs",
+      "serve.mjs"
     ],
     "mime_types": {
       "text/html": {

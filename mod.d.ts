@@ -28,7 +28,7 @@ export interface Endpoint<T> {
   accept: (request: Request, url: URL, remoteAddr: Deno.NetAddr|Deno.UnixAddr) => Promise<T>
   handle: (accepted: T, headers?: Record<string,string>) => Promise<Response>
 }
-export type ServeOptions = Deno.ServeOptions|Deno.ServeUnixOptions
+export type ServeOptions = Deno.ServeOptions
 
 export function listen(options: ServeOptions,workingDirectory?: string):Promise<()=>Promise<void>>
 interface DirectoryEndpoints {
