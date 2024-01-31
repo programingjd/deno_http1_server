@@ -239,7 +239,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
   async function walk(domain,path,prefix,headers,mimes,excludes,cache){
     /** @type {[string,MimeTypeConfig][]} */
     const mimeEntries=Object.entries(mimes);
-    const dirUrl=new URL(`${baseUrl.pathname}/${path}`, baseUrl);
+    const dirUrl=new URL(sanitizePath(`${baseUrl.pathname}/${path}`), baseUrl);
     for await(const it of Deno.readDir(dirUrl)){
       const name=it.name;
       if(it.isFile){
@@ -248,7 +248,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
           ([,value])=>value.suffixes.find(suffix=>name.endsWith(suffix))
         );
         if(mimeEntry){
-          let filename=`${path}/${name}`;
+          let filename=sanitizePath(`${path}/${name}`);
           if(excludes.has(filename)) continue;
           let pathname;
           if(it.name==='index.html'){
@@ -272,7 +272,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
               );
             }
           }else pathname=`${prefix}/${name}`;
-          const childUrl=new URL(`${baseUrl.pathname}/${filename}`,baseUrl);
+          const childUrl=new URL(sanitizePath(`${baseUrl.pathname}/${filename}`),baseUrl);
           const stat=await Deno.stat(childUrl);
           const cacheThreshold=threshold(mimeEntry[1].cache_threshold);
           const filesize=stat.size
@@ -312,7 +312,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
                       +`   ${(body.byteLength||filesize).toString().padStart(12)}`);
         }
       }else if(it.isDirectory){
-        const filename=`${path}/${name}`;
+        const filename=sanitizePath(`${path}/${name}`);
         if(!excludes.has(filename)){
           await walk(domain,filename,`${prefix}/${name}`,headers,mimes,excludes,cache);
         }
@@ -427,7 +427,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
     try{
       console.log(`${magenta('Directory')}: ${dir}`);
       const url=new URL(baseUrl);
-      url.pathname+=`/${dir}/directory.json`;
+      url.pathname=sanitizePath(`${url.pathname}/${dir}/directory.json`);
       const mod=await import(url,{with:{type:'json'}});
       const config=validateDirectoryConfig(mod.default);
       /** @type {[Endpoint<*>]} */
@@ -457,7 +457,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
      */
     const hasConfig=async(name)=>{
       try{
-        return (await Deno.lstat(new URL(`${baseUrl.pathname}/${name}/directory.json`, baseUrl))).isFile;
+        return (await Deno.lstat(new URL(sanitizePath(`${baseUrl.pathname}/${name}/directory.json`), baseUrl))).isFile;
       }catch(_){
         return false;
       }
