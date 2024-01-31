@@ -226,6 +226,14 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
     return new Headers([...map.entries()]);
   }
 
+  function deriveEtag(stat,filesize){
+    try{
+      return `${stat.mtime.getTime().toString(16)}:${filesize.toString(16)}`;
+    }catch(_){ // Deno deploy doesn't support mtime
+      return `${Date.now().toString(16)}:${filesize.toString(16)}`;
+    }
+  }
+
   /**
    * @param {string} domain
    * @param {string} path
@@ -279,7 +287,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
           const filesize=stat.size
           const cacheBody=cacheThreshold===null||filesize<=cacheThreshold;
           const compress=cacheBody&&mimeEntry[1].compress;
-          const etag=`${stat.mtime.getTime().toString(16)}:${filesize.toString(16)}`;
+          const etag=deriveEtag(stat,filesize); // `${stat.mtime.getTime().toString(16)}:${filesize.toString(16)}`;
           const cacheHeaders=mergeHeaders(
             headers,
             {'content-type': mimeEntry[0],etag},
