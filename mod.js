@@ -1,6 +1,6 @@
 import {underline,strikethrough,magenta} from 'https://deno.land/std/fmt/colors.ts';
 import {readableStreamFromReader} from 'https://deno.land/std/streams/mod.ts';
-import {toFileUrl} from 'https://deno.land/std/path/mod.ts';
+import {toFileUrl,fromFileUrl} from 'https://deno.land/std/path/mod.ts';
 import {compress as br} from 'https://deno.land/x/brotli/mod.ts';
 
 /** @type {Set<DomainName>} */
@@ -81,7 +81,7 @@ const handle=async(request,url,remoteAddr,endpoints)=>{
 const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
   const {signal=null}=options;
 
-  let defaultHeaders=(await import('./headers.json',{assert:{type:'json'}})).default;
+  let defaultHeaders=(await import('./headers.json',{with:{type:'json'}})).default;
   for(const [,value] of Object.entries(defaultHeaders)){
     if(typeof value!=='string'){
       throw new Error('Header value for default header "`${key}`" should be a string.');
@@ -100,7 +100,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
       return data;
     };
   })();
-  let defaultMimes=validateMimeTypes((await import('./mimes.json',{assert:{type:'json'}})).default);
+  let defaultMimes=validateMimeTypes((await import('./mimes.json',{with:{type:'json'}})).default);
 
   /** @type {ValidateFunction<DirectoryConfig>} */
   const validateDirectoryConfig=await(async()=>{
@@ -429,7 +429,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
       console.log(`${magenta('Directory')}: ${dir}`);
       const url=new URL(baseUrl);
       url.pathname=sanitizePath(`${url.pathname}/${dir}/directory.json`);
-      const mod=await import(url,{with:{type:'json'}});
+      const mod=await import(fromFileUrl(url),{with:{type:'json'}});
       const config=validateDirectoryConfig(mod.default);
       /** @type {[Endpoint<*>]} */
       const endpoints=[
