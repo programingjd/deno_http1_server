@@ -7,7 +7,6 @@
     "path": "/example",
     "domain": "www.test.local",
     "excludes": [
-      "directory.json",
       "endpoints.mjs",
       "serve.mjs"
     ],

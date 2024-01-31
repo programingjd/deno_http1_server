@@ -341,7 +341,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
       mergedHeaders,
       mergedMimes,
       new Set([
-        `/${dir}/directory.json`,
+        sanitizePath(`${dir}/directory.json`),
       ...(config.excludes||[]).map(it=>sanitizePath(`${dir}/${it}`))
       ]),
       cache
@@ -428,7 +428,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
       console.log(`${magenta('Directory')}: ${dir}`);
       const url=new URL(baseUrl);
       url.pathname+=`/${dir}/directory.json`;
-      const mod=await import(url,{assert:{type:'json'}});
+      const mod=await import(url,{with:{type:'json'}});
       const config=validateDirectoryConfig(mod.default);
       /** @type {[Endpoint<*>]} */
       const endpoints=[
