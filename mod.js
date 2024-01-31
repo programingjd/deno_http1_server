@@ -429,8 +429,10 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
       console.log(`${magenta('Directory')}: ${dir}`);
       const url=new URL(baseUrl);
       url.pathname=sanitizePath(`${url.pathname}/${dir}/directory.json`);
-      const mod=await import(url,{with:{type:'json'}});
-      const config=validateDirectoryConfig(mod.default);
+      const json=JSON.parse(await Deno.readTextFile(url));
+      const config=validateDirectoryConfig(json);
+      // const mod=await import(url,{with:{type:'json'}});
+      // const config=validateDirectoryConfig(mod.default);
       /** @type {[Endpoint<*>]} */
       const endpoints=[
         await staticEndpoint(dir,config.headers,config.static),
