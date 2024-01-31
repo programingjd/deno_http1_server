@@ -184,6 +184,18 @@ await Deno.test({
       sanitizeResources:false,
       sanitizeExit:false
     });
+    await t.step({
+      name:'404 on www.test.local/example/.hidden/hidden.txt',
+      fn:async _=>{
+        const response=await fetch('http://www.test.local:8080/example/.hidden/hidden.txt');
+        assertEquals(response.status,404);
+        const text=await response.text();
+        assertEquals(text,'');
+      },
+      sanitizeOps:false,
+      sanitizeResources:false,
+      sanitizeExit:false
+    });
     await Deno.remove('./example/test.txt');
     await t.step({
       name: 'update all',

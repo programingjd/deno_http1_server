@@ -242,6 +242,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
     const dirUrl=new URL(sanitizePath(`${baseUrl.pathname}/${path}`), baseUrl);
     for await(const it of Deno.readDir(dirUrl)){
       const name=it.name;
+      if(name.charAt(0)==='.') continue;
       if(it.isFile){
         // noinspection JSCheckFunctionSignatures
         const mimeEntry=mimeEntries.find(
