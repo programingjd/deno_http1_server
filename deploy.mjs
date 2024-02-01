@@ -1,14 +1,7 @@
-import {underline,strikethrough,magenta} from 'https://deno.land/std/fmt/colors.ts';
+import {underline} from 'https://deno.land/std/fmt/colors.ts';
 import {readableStreamFromReader} from 'https://deno.land/std/streams/mod.ts';
 import {toFileUrl} from 'https://deno.land/std/path/mod.ts';
 import {compress as br} from 'https://deno.land/x/brotli/mod.ts';
-
-/** @type {Set<DomainName>} */
-const localDomains=new Set([
-  'localhost',
-  '127.0.0.1',
-  '::1'
-]);
 
 /**
  * @param {ServeOptions} options
@@ -75,10 +68,11 @@ const handle=async(request,url,remoteAddr,endpoints)=>{
 
 /**
  * @param {ServeOptions} options
+ * @param {Endpoint<*>[]} [endpoints=[]]
  * @param {string} [baseUrl=Deno.baseUrl()]
  * @return {Promise<()=>Promise<void>>}
  */
-const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
+const listen=async(options, endpoints=[], baseUrl=toFileUrl(Deno.cwd()))=>{
   const {signal=null}=options;
 
   let defaultHeaders=(await import('./headers.json',{with:{type:'json'}})).default;
@@ -111,75 +105,6 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
       return data;
     }
   })();
-
-  /** @type {Endpoint<boolean>} */
-  const updateAllEndpoint={
-    updating: false,
-    name: '/update',
-    accept: async function(request, url){
-      if(request.method!=='GET') return null;
-      if(url.pathname!=='/update') return null;
-      // noinspection JSPotentiallyInvalidUsageOfThis
-      const value=this.updating;
-      // noinspection JSPotentiallyInvalidUsageOfThis
-      this.updating=true;
-      return value;
-    },
-    handle: async function(updating){
-      if(updating) return new Response({status:429});
-      try{
-        state=await updateState();
-        return new Response(null,{status:200});
-      }finally{
-        // noinspection JSPotentiallyInvalidUsageOfThis
-        this.updating=false;
-      }
-    }
-  };
-
-  /** @type {Endpoint<{name:DirectoryName,updating:boolean}>} */
-  const updateDirectoryEndpoint={
-    updating: false,
-    name: '/update/{directory}',
-    accept: async function(request, url){
-      if(request.method!=='GET') return null;
-      const match=/^[/]update[/]([^/]+)$/.exec(url.pathname);
-      if(!match) return null;
-      const name=match[1];
-      if(name.charAt(0)==='.') return null;
-      if(localDomains.has(name)) return null;
-      // noinspection JSPotentiallyInvalidUsageOfThis
-      const updating=this.updating;
-      // noinspection JSPotentiallyInvalidUsageOfThis
-      this.updating=true;
-      return {name,updating};
-    },
-    handle: async function(accepted){
-      const {name,updating}=accepted;
-      if(updating) return new Response(null,{status:429});
-      try{
-        const newConfig=await updateDirectoryState(name);
-        if(!newConfig) throw new Error(`Could not load config for directory "${name}".`);
-        const newState=new Map();
-        for(const [domain,config] of state){
-          if(config.directory!==name){
-            newState.set(domain,config);
-          }
-        }
-        for(const domain of newConfig.domains){
-          if(newState.has(domain)) {
-            throw new Error(`Domain "${domain}" is assigned to two different directories.`);
-          }
-          newState.set(domain,newConfig);
-        }
-        state=newState;
-        return new Response(null,{status:200});
-      }finally{
-        // noinspection JSPotentiallyInvalidUsageOfThis
-        this.updating=false;
-      }
-    }
-  };
 
   /**
    * @param {string} path
@@ -318,7 +243,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
             }
           );
           console.log(`${underline(pathname||'/').padEnd(80)}   ${filesize.toString().padStart(12)}`
-                      +`   ${(body.byteLength||filesize).toString().padStart(12)}`);
+            +`   ${(body.byteLength||filesize).toString().padStart(12)}`);
         }
       }else if(it.isDirectory){
         const filename=sanitizePath(`${path}/${name}`);
@@ -330,12 +255,11 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
   }
 
   /**
-   * @param {DirectoryName} dir
    * @param {Object<string,string>} headers
    * @param {?StaticConfig} config
    * @return {Promise<?Endpoint<CacheValue>>}
    */
-  async function staticEndpoint(dir, headers, config){
+  async function staticEndpoint(headers, config){
     if(!config) return null;
     /** @type {Map<string,CacheValue>} */
     const cache=new Map();
@@ -345,13 +269,13 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
     const mergedMimes=Object.assign({...defaultMimes},config.mime_types||{});
     await walk(
       config.domain,
-      dir,
+      '',
       path,
       mergedHeaders,
       mergedMimes,
       new Set([
-        sanitizePath(`${dir}/directory.json`),
-      ...(config.excludes||[]).map(it=>sanitizePath(`${dir}/${it}`))
+        sanitizePath('directory.json'),
+        ...(config.excludes||[]).map(it=>sanitizePath(it))
       ]),
       cache
     );
@@ -399,57 +323,51 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
   }
 
   /**
-   * @param {DirectoryName} dir
    * @param {Object<string,string>} headers
-   * @param {?string[]} modules
+   * @param {?Module[]} modules
    * @returns {Promise<Endpoint<*>[]>}
    */
-  async function dynamicEndpoints(dir,headers,modules){
+  async function dynamicEndpoints(headers,modules){
     if(modules&&modules.length>0){
       const additionalHeaders=Object.assign({...defaultHeaders},headers||{});
-      const importMod=async mod=>{
-        const url=new URL(baseUrl);
-        url.pathname+=sanitizePath(`${dir}/${mod}`);
-        const imported=await import(url);
+      const importMod=async imported=>{
         let endpoints=imported.default;
         if(typeof endpoints==='function') endpoints=await endpoints();
         return Array.isArray(endpoints)?endpoints:[endpoints];
       };
       return (await Promise.all(modules.map(importMod))).
-        flat(1).
-        map(it=>{
-          if(it.name) console.log(underline(it.name));
-          return {
-            accept: it.accept,
-            handle: async(accepted)=>await it.handle(accepted,additionalHeaders)
-          };
-        });
+      flat(1).
+      map(it=>{
+        if(it.name) console.log(underline(it.name));
+        return {
+          accept: it.accept,
+          handle: async(accepted)=>await it.handle(accepted,additionalHeaders)
+        };
+      });
     }
     return [];
   }
 
   /**
-   * @param {DirectoryName} dir
    * @return {Promise<?DirectoryEndpoints>}
    */
-  async function updateDirectoryState(dir){
+  async function updateDirectoryState(){
     try{
-      console.log(`${magenta('Directory')}: ${dir}`);
       const url=new URL(baseUrl);
-      url.pathname=sanitizePath(`${url.pathname}/${dir}/directory.json`);
+      url.pathname=sanitizePath(`${url.pathname}/directory.json`);
       const json=JSON.parse(await Deno.readTextFile(url));
       const config=validateDirectoryConfig(json);
       // const mod=await import(url,{with:{type:'json'}});
       // const config=validateDirectoryConfig(mod.default);
       /** @type {[Endpoint<*>]} */
-      const endpoints=[
-        await staticEndpoint(dir,config.headers,config.static),
-        ...await dynamicEndpoints(dir,config.headers,config.endpoints)
+      const allEndpoints=[
+        await staticEndpoint(config.headers,config.static),
+        ...await dynamicEndpoints(config.headers,endpoints)
       ].filter(it=>it);
       return {
-        directory: dir,
+        directory: '',
         domains: config.domains,
-        endpoints
+        endpoints: allEndpoints
       }
     }catch(err){
       console.error(err);
@@ -462,40 +380,13 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
   async function updateState(){
     /** @type {State} */
     const state=new Map();
-    /**
-     * @param {string} name
-     * @returns {Promise<boolean>}
-     */
-    const hasConfig=async(name)=>{
-      try{
-        return (await Deno.lstat(new URL(sanitizePath(`${baseUrl.pathname}/${name}/directory.json`), baseUrl))).isFile;
-      }catch(_){
-        return false;
+    const config=await updateDirectoryState();
+    if(!config) throw new Error('Could not load config.');
+    for(const domain of config.domains){
+      if(state.has(domain)) {
+        throw new Error(`Domain "${domain}" is assigned to two different directories.`);
       }
-    };
-    /** @type {DirectoryEndpoints} */
-    const localEndpoints={
-      directory: '.local',
-      domains: [...localDomains],
-      endpoints: [updateAllEndpoint,updateDirectoryEndpoint]
-    };
-    for(const domain of localDomains){
-      state.set(domain,localEndpoints);
-    }
-    for await(const it of Deno.readDir(baseUrl)){
-      if(it.isDirectory){
-        if(it.name.charAt(0)==='.') continue;
-        if(await hasConfig(it.name)){
-          const config=await updateDirectoryState(it.name);
-          if(!config) throw new Error(`Could not load config for directory "${it.name}".`);
-          for(const domain of config.domains){
-            if(state.has(domain)) {
-              throw new Error(`Domain "${domain}" is assigned to two different directories.`);
-            }
-            state.set(domain,config);
-          }
-        }else console.log(strikethrough(`Directory: ${it.name}`));
-      }
+      state.set(domain,config);
     }
     return state;
   }
