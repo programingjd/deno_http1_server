@@ -443,7 +443,7 @@ const listen=async(options, baseUrl=toFileUrl(Deno.cwd()))=>{
       // const config=validateDirectoryConfig(mod.default);
       /** @type {[Endpoint<*>]} */
       const endpoints=[
-        ...await dynamicEndpoints(dir,config.headers,config.endpoints)
+        ...await dynamicEndpoints(dir,config.headers,config.endpoints),
         await staticEndpoint(dir,config.headers,config.static),
       ].filter(it=>it);
       return {

@@ -361,8 +361,8 @@ const listen=async(options, endpoints=[], baseUrl=toFileUrl(Deno.cwd()))=>{
       // const config=validateDirectoryConfig(mod.default);
       /** @type {[Endpoint<*>]} */
       const allEndpoints=[
-        ...await dynamicEndpoints(config.headers,endpoints)
-        await staticEndpoint(config.headers,config.static),
+        ...await dynamicEndpoints(config.headers,endpoints),
+        await staticEndpoint(config.headers,config.static)
       ].filter(it=>it);
       return {
         directory: '',
