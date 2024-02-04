@@ -285,7 +285,7 @@ const listen=async(options, endpoints=[], baseUrl=toFileUrl(Deno.cwd()))=>{
         const key=url.pathname==='/'?'':url.pathname;
         const entry=cache.get(key);
         if(!entry) return null;
-        if(url.hostname!==config.domain){
+        if(url.hostname!=='localhost'&&url.hostname!==config.domain){
           const location=new URL(url);
           location.hostname=config.domain;
           const redirectHeaders=new Headers(mergedHeaders);
@@ -388,6 +388,7 @@ const listen=async(options, endpoints=[], baseUrl=toFileUrl(Deno.cwd()))=>{
       }
       state.set(domain,config);
     }
+    state.set('localhost',config);
     return state;
   }
 
