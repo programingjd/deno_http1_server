@@ -89,6 +89,16 @@
     "compress": false,
     "cache_threshold": null
   },
+  "image/gif": {
+    "suffixes": [
+      ".gif"
+    ],
+    "headers": {
+      "cache-control": "public,max-age=31536000,immutable"
+    },
+    "compress": false,
+    "cache_threshold": null
+  },
   "image/svg+xml": {
     "suffixes": [
       ".svg"
