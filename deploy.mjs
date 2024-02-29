@@ -1,4 +1,5 @@
 import {underline} from 'https://deno.land/std/fmt/colors.ts';
+import {exists as fileExists} from 'https://deno.land/std/fs/exists.ts';
 import {readableStreamFromReader} from 'https://deno.land/std/streams/mod.ts';
 import {toFileUrl} from 'https://deno.land/std/path/mod.ts';
 import {compress as br} from 'https://deno.land/x/brotli/mod.ts';
@@ -220,10 +221,17 @@ const listen=async(options, endpoints=[], baseUrl=toFileUrl(Deno.cwd()))=>{
           );
           let body;
           if(cacheBody){
-            body=await Deno.readFile(childUrl);
             if(compress){
-              body=await br(body);
+              let compressedChildUrl=new URL(sanitizePath(`${baseUrl.pathname}/${filename}.br`),baseUrl);
+              if(await fileExists(compressedChildUrl)){
+                body=await Deno.readFile(compressedChildUrl);
+              }else{
+                body=await Deno.readFile(childUrl);
+                body=await br(body);
+              }
               cacheHeaders.set('content-encoding','br');
+            }else{
+              body=await Deno.readFile(childUrl);
             }
             cacheHeaders.set('content-length',body.byteLength.toString());
           }else{
